@@ -19,3 +19,4 @@ local.properties
 # Java files
 *.class
 *.jar
+/target/
