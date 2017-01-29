@@ -3,10 +3,12 @@ package edu.ucsd.cse.xprocessor;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.w3c.dom.Node;
 
 import edu.ucsd.cse.xprocessor.parser.EvalVisitor;
 import edu.ucsd.cse.xprocessor.parser.XQueryLexer;
 import edu.ucsd.cse.xprocessor.parser.XQueryParser;
+
 
 /**
  * @author Dhruv Sharma (dhsharma@cs.ucsd.edu)
@@ -14,7 +16,7 @@ import edu.ucsd.cse.xprocessor.parser.XQueryParser;
  */
 public class App {
 	public static void main(String[] args) {
-		String query = "doc(\"abc.txt\")/title//asd[.==..]";
+		String query = "doc(\"test.xml\")/title//actor[.==..]";
 
 		ANTLRInputStream input = new ANTLRInputStream(query);
 		XQueryLexer lexer = new XQueryLexer(input);
@@ -24,7 +26,8 @@ public class App {
 		parser.removeErrorListeners();
 
 		ParseTree tree = parser.start();
-		Object visitor = new EvalVisitor<Object>().visit(tree);
+		Node visitor = new EvalVisitor<Node>().visit(tree);
 		
 	}
+
 }

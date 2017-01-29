@@ -1,5 +1,9 @@
 grammar XQuery;
 
+@header {
+	package edu.ucsd.cse.xprocessor.parser;
+}
+
 start : ap
 	;
 
@@ -19,6 +23,10 @@ rp : tagName=ID                 	#rpTagName
     | relpath=rp '[' filter=f ']'   #rpFilterExpr
     | left=rp ',' right=rp          #rpConcatExpr
     ;
+    
+/*
+    |								#rpEmpty
+*/
 
 f : rp                          	#filterRp
     | left=rp ('='|'eq') right=rp  	#filterEqualVal
