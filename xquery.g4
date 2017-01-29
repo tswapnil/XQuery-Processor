@@ -1,5 +1,8 @@
 grammar xquery;
 
+@header {
+	package edu.ucsd.cse.xprocessor.parser;
+}
 ap : 'doc("' ID '")' '/' rp     #apSlashFile
     | 'doc("' ID '")' '//' rp   #apSlashFile
     ;
@@ -15,6 +18,7 @@ rp : ID                         #rpTagName
     | rp '//' rp                #rpDblSlashExpr
     | rp '[' f ']'              #rpFilterExpr
     | rp ',' rp                 #rpConcatExpr
+    |                           #rpEmpty
     ;
 
 f : rp                          #filterRp
@@ -26,7 +30,7 @@ f : rp                          #filterRp
     | 'not' f                   #filterNotExpr
     ;
 
-ID : ALPHA ALNUM*               
+ID : ALPHA ALNUM*          
     ;
 
 /*
