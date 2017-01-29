@@ -1,11 +1,13 @@
-#!/usr/bin/bash
+#!/bin/bash
 
-antlr4 -no-listener xquery.g4
+#antlr4 -no-listener -visitor xquery.g4
 
-#antlr4 -no-listener -lib . -package edu.ucsd.cse.xprocessor.parser -o src/main/java/edu/ucsd/cse/xprocessor/parser xquery.g4
+antlr4 -no-listener -visitor -lib . -package edu.ucsd.cse.xprocessor.parser -o src/main/java/edu/ucsd/cse/xprocessor/parser xquery.g4
 
-javac xquery*.java
+mvn clean build
 
-echo "Press <Ctrl/Command + D> after entering the query to view parse tree"
+#javac xquery*.java
 
-grun xquery ap -gui
+#echo "Press <Ctrl/Command + D> after entering the query to view parse tree"
+
+#grun xquery ap -gui
