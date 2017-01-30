@@ -134,10 +134,11 @@ public class XQueryParser extends Parser {
 	}
 	public static class ApSlashFileContext extends ApContext {
 		public Token docName;
+		public RpContext relpath;
+		public TerminalNode FILE() { return getToken(XQueryParser.FILE, 0); }
 		public RpContext rp() {
 			return getRuleContext(RpContext.class,0);
 		}
-		public TerminalNode FILE() { return getToken(XQueryParser.FILE, 0); }
 		public ApSlashFileContext(ApContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
@@ -147,10 +148,11 @@ public class XQueryParser extends Parser {
 	}
 	public static class ApDblSlashFileContext extends ApContext {
 		public Token docName;
+		public RpContext relpath;
+		public TerminalNode FILE() { return getToken(XQueryParser.FILE, 0); }
 		public RpContext rp() {
 			return getRuleContext(RpContext.class,0);
 		}
-		public TerminalNode FILE() { return getToken(XQueryParser.FILE, 0); }
 		public ApDblSlashFileContext(ApContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
@@ -179,7 +181,7 @@ public class XQueryParser extends Parser {
 				setState(13);
 				match(T__2);
 				setState(14);
-				rp(0);
+				((ApSlashFileContext)_localctx).relpath = rp(0);
 				}
 				break;
 			case 2:
@@ -195,7 +197,7 @@ public class XQueryParser extends Parser {
 				setState(18);
 				match(T__3);
 				setState(19);
-				rp(0);
+				((ApDblSlashFileContext)_localctx).relpath = rp(0);
 				}
 				break;
 			}
