@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -77,7 +78,14 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			return null;
 		}
 
-		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
+		XQueryResultType resultType;
+		if(currentNode.getNodeType() == Node.ATTRIBUTE_NODE) {
+			resultType = XQueryResultType.ATTR;
+		} else {
+			resultType = XQueryResultType.NODES;
+		}
+		
+		XQueryResult result = new XQueryResult(resultType);
 		NodeListImpl nodes = new NodeListImpl();
 		nodes.add(currentNode);
 
@@ -118,9 +126,10 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			return null;
 		}
 
-		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
 		NodeListImpl nodes = new NodeListImpl();
 		XQueryResult leftResult = visit(ctx.left);
+		
+		XQueryResultType resultType = XQueryResultType.NODES;
 
 		if (leftResult.getNodes() != null && leftResult.getNodes().getLength() > 0) {
 			for (int i = 0; i < leftResult.getNodes().getLength(); i++) {
@@ -128,9 +137,11 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				currentNode = node;
 				XQueryResult rightResult = visit(ctx.right);
 				nodes.addAll(rightResult.getNodes());
+				resultType = rightResult.getType();
 			}
 		}
-		
+
+		XQueryResult result = new XQueryResult(resultType);
 		result.setNodes(nodes);
 
 		return result;
@@ -138,8 +149,28 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpFilterExpr(XQueryParser.RpFilterExprContext ctx) {
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		if (doc == null) {
+			return null;
+		}
+
+		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
+		NodeListImpl nodes = new NodeListImpl();
+
+		XQueryResult relPathResult = visit(ctx.relpath);
+		NodeListImpl relPathNodes = relPathResult.getNodes();
+		if (nodes != null) {
+			for (Node node : relPathNodes) {
+				currentNode = node;
+				XQueryResult filterResult = visit(ctx.filter);
+				if (filterResult.isTrue()) {
+					nodes.add(node);
+				}
+			}
+		}
+
+		result.setNodes(nodes);
+
+		return result;
 	}
 
 	@Override
@@ -168,9 +199,20 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			return null;
 		}
 
-		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
+		
+		
 		NodeListImpl nodes = new NodeListImpl();
 		nodes.add(currentNode.getParentNode());
+		
+		XQueryResultType resultType;
+		if(currentNode.getParentNode().getNodeType() == Node.ATTRIBUTE_NODE) {
+			resultType = XQueryResultType.ATTR;
+		} else {
+			resultType = XQueryResultType.NODES;
+		}
+		
+		XQueryResult result = new XQueryResult(resultType);
+		
 		currentNode = currentNode.getParentNode();
 
 		result.setNodes(nodes);
@@ -180,8 +222,17 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpAttrName(XQueryParser.RpAttrNameContext ctx) {
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		if (doc == null) {
+			return null;
+		}
+
+		XQueryResult result = new XQueryResult(XQueryResultType.ATTR);
+		NodeListImpl nodes = new NodeListImpl();
+		nodes.add(((Element) currentNode).getAttributeNode(ctx.attrName.getText()));
+		
+		result.setNodes(nodes);
+
+		return result;
 	}
 
 	@Override
@@ -204,8 +255,13 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpParenExpr(XQueryParser.RpParenExprContext ctx) {
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		if (doc == null) {
+			return null;
+		}
+
+		XQueryResult result = visit(ctx.relpath);
+
+		return result;
 	}
 
 	@Override

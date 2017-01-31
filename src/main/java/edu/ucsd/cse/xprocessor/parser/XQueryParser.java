@@ -341,6 +341,7 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class RpParenExprContext extends RpContext {
+		public RpContext relpath;
 		public RpContext rp() {
 			return getRuleContext(RpContext.class,0);
 		}
@@ -435,7 +436,7 @@ public class XQueryParser extends Parser {
 				setState(30);
 				match(T__9);
 				setState(31);
-				rp(0);
+				((RpParenExprContext)_localctx).relpath = rp(0);
 				setState(32);
 				match(T__10);
 				}
