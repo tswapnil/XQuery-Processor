@@ -7,6 +7,7 @@ package edu.ucsd.cse.xprocessor.result;
 public enum XQueryResultType {
 	
 	NODES,
-	BOOLEAN;
+	BOOLEAN,
+	ATTR;
 
 }

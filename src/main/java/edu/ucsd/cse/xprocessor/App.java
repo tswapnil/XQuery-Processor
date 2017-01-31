@@ -1,6 +1,8 @@
 package edu.ucsd.cse.xprocessor;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,6 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,9 +33,12 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
  *
  */
 public class App {
-	public static void main(String[] args) throws ParserConfigurationException, TransformerException {
+
+	private static String outputFileName = "result.xml";
+
+	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
-		String query = "doc(\"input.xml\")/supercars/carname";
+		String query = "doc(\"input.xml\")/supercars/carname/.";
 
 		ANTLRInputStream input = new ANTLRInputStream(query);
 		XQueryLexer lexer = new XQueryLexer(input);
@@ -50,45 +56,54 @@ public class App {
 	}
 
 	public static void generateResultXMLFile(XQueryResult result)
-			throws ParserConfigurationException, TransformerException {
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.newDocument();
-		// root (result) element
-		Element rootElement = doc.createElement("result");
-		doc.appendChild(rootElement);
+			throws ParserConfigurationException, TransformerException, IOException {
+		if (result.getType() == XQueryResultType.NODES) {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.newDocument();
+			// root (result) element
+			Element rootElement = doc.createElement("result");
+			doc.appendChild(rootElement);
 
-		// nodes element
-		if (result.getNodes() != null && result.getNodes().getLength() > 0) {
-			Element nodes = doc.createElement("nodes");
-			rootElement.appendChild(nodes);
+			// nodes element
+			if (result.getNodes() != null && result.getNodes().getLength() > 0) {
+				Element nodes = doc.createElement("nodes");
+				rootElement.appendChild(nodes);
 
-			if (result.getType() == XQueryResultType.NODES) {
 				for (Node node : result.getNodes()) {
-					if (node.getNodeType() == Node.ELEMENT_NODE) {
-						Node newNode = doc.importNode(node, true);
-						nodes.appendChild(newNode);
-					}
+					Node newNode = doc.importNode(node, true);
+					nodes.appendChild(newNode);
 				}
 			}
+
+			// Ignore all indentation from previous document
+			removeEmptyText(doc.getDocumentElement());
+
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+			DOMSource source = new DOMSource(doc);
+			StreamResult streamResult = new StreamResult(new File(outputFileName));
+			transformer.transform(source, streamResult);
+
+			// Output to console for testing
+			StreamResult consoleResult = new StreamResult(System.out);
+			transformer.transform(source, consoleResult);
+		} else {
+			if (result.getType() == XQueryResultType.ATTR) {
+				FileWriter writer = new FileWriter(new File(outputFileName));
+				if (result.getNodes() != null) {
+					for (Node node : result.getNodes()) {
+						String attrString = ((Attr) node).getValue();
+						writer.write(attrString + "\n");
+						System.out.println(attrString);
+					}
+				}
+				writer.close();
+			}
 		}
-
-		// Ignore all indentation from previous document
-		removeEmptyText(doc.getDocumentElement());
-
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-		DOMSource source = new DOMSource(doc);
-		StreamResult streamResult = new StreamResult(new File("result.xml"));
-		transformer.transform(source, streamResult);
-
-		// Output to console for testing
-		StreamResult consoleResult = new StreamResult(System.out);
-		transformer.transform(source, consoleResult);
-		
 	}
 
 	private static void removeEmptyText(Node node) {

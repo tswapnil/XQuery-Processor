@@ -20,7 +20,7 @@ rp : tagName=ID                 					#rpTagName
     | '..'                      					#rpDblDot
     | 'text()'                  					#rpText
     | '@' attrName=ID           					#rpAttrName
-    | '(' rp ')'                					#rpParenExpr
+    | '(' relpath=rp ')'                			#rpParenExpr
 	| left=rp '/' right=rp    						#rpSlashExpr
     | left=rp '//' right=rp         				#rpDblSlashExpr
     | relpath=rp '[' filter=f ']'   				#rpFilterExpr

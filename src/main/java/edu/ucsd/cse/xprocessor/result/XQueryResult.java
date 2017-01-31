@@ -3,6 +3,8 @@
  */
 package edu.ucsd.cse.xprocessor.result;
 
+import java.util.ArrayList;
+
 /**
  * @author Dhruv Sharma (dhsharma@cs.ucsd.edu)
  *
@@ -19,11 +21,11 @@ public class XQueryResult {
 		this.nodes = null;
 	}
 
-	public boolean isBool() {
+	public boolean isTrue() {
 		return bool;
 	}
 
-	public void setBool(boolean bool) {
+	public void setTruth(boolean bool) {
 		this.bool = bool;
 	}
 
