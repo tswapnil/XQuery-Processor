@@ -34,7 +34,7 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
  */
 public class App {
 
-	private static String outputFileName = "output.xml";
+	private static String outputFileName = "result.xml";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
