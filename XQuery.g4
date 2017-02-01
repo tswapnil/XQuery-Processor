@@ -2,7 +2,7 @@ grammar XQuery;
 
 
 @header {
-	package edu.ucsd.cse.xprocessor.parser;
+package edu.ucsd.cse.xprocessor.parser;
 }
 
 
@@ -31,7 +31,7 @@ rp : tagName=ID                 					#rpTagName
     |												#rpEmpty
 */
 
-f : rp                          					#filterRp
+f : relPath=rp                          			#filterRp
     | left=rp ('='|'eq') right=rp  					#filterEqualVal
     | left=rp ('=='|'is') right=rp 					#filterEqualId
     | '(' filter=f ')'  	     					#filterParenExpr
