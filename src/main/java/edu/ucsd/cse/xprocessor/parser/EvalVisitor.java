@@ -36,7 +36,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitApSlashFile(XQueryParser.ApSlashFileContext ctx) {
-
+		System.out.println("visiting ApSlashFile");
 		File xmlFile = new File(ctx.docName.getText());
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -63,17 +63,20 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitApDblSlashFile(XQueryParser.ApDblSlashFileContext ctx) {
+		System.out.println("Visiting ApDblSlashFile");
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitRpDblSlashExpr(XQueryParser.RpDblSlashExprContext ctx) {
+		System.out.println("Visiting RpDblSlashFile");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitRpDot(XQueryParser.RpDotContext ctx) {
+		System.out.println("Visiting RpDot");
 		if (doc == null) {
 			return null;
 		}
@@ -96,6 +99,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpText(XQueryParser.RpTextContext ctx) {
+		System.out.println("Visiting RpText");
 		if (doc == null) {
 			return null;
 		}
@@ -116,12 +120,14 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpConcatExpr(XQueryParser.RpConcatExprContext ctx) {
+		System.out.println("Visiting RpConcatExpr");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitRpSlashExpr(XQueryParser.RpSlashExprContext ctx) {
+		System.out.println("Visiting RpSlashExpr");
 		if (doc == null) {
 			return null;
 		}
@@ -149,6 +155,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpFilterExpr(XQueryParser.RpFilterExprContext ctx) {
+		System.out.println("Visiting RpFilterExpr");
 		if (doc == null) {
 			return null;
 		}
@@ -175,6 +182,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpTagName(XQueryParser.RpTagNameContext ctx) {
+		System.out.println("Visiting RpTagName");
 		if (doc == null) {
 			return null;
 		}
@@ -195,6 +203,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpDblDot(XQueryParser.RpDblDotContext ctx) {
+		System.out.println("Visiting RpDblDot");
 		if (doc == null) {
 			return null;
 		}
@@ -222,6 +231,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpAttrName(XQueryParser.RpAttrNameContext ctx) {
+		System.out.println("Visiting RpAttrName");
 		if (doc == null) {
 			return null;
 		}
@@ -237,6 +247,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpWildcard(XQueryParser.RpWildcardContext ctx) {
+		System.out.println("Visiting RpWildCard");
 		if (doc == null) {
 			return null;
 		}
@@ -255,6 +266,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpParenExpr(XQueryParser.RpParenExprContext ctx) {
+		System.out.println("Visiting RpParentExpr");
 		if (doc == null) {
 			return null;
 		}
@@ -266,42 +278,49 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitFilterAndExpr(XQueryParser.FilterAndExprContext ctx) {
+		System.out.println("Visiting FilterAndExpr");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitFilterRp(XQueryParser.FilterRpContext ctx) {
+		System.out.println("Visiting FilterRp");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitFilterEqualVal(XQueryParser.FilterEqualValContext ctx) {
+		System.out.println("Visiting FilterEqualVal");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitFilterOrExpr(XQueryParser.FilterOrExprContext ctx) {
+		System.out.println("Visiting FilterOrExpr");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitFilterParenExpr(XQueryParser.FilterParenExprContext ctx) {
+		System.out.println("Visiting FilterParentExpr");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitFilterNotExpr(XQueryParser.FilterNotExprContext ctx) {
+		System.out.println("Visiting FilterNotExpr");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public XQueryResult visitFilterEqualId(XQueryParser.FilterEqualIdContext ctx) {
+		System.out.println("Visiting FilterEqualId");
 		System.out.println(ctx.toString());
 		return visitChildren(ctx);
 	}
