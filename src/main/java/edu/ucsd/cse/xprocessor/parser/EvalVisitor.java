@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import edu.ucsd.cse.xprocessor.result.NodeListImpl;
@@ -279,50 +280,152 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitFilterAndExpr(XQueryParser.FilterAndExprContext ctx) {
 		System.out.println("Visiting FilterAndExpr");
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		//System.out.println(ctx.toString());
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		result.setTruth(false);
+	
+		XQueryResult leftResult = visit(ctx.leftf);
+		XQueryResult rightResult = visit(ctx.rightf);
+		if(leftResult.isTrue() && rightResult.isTrue()){
+			result.setTruth(true);
+		}
+		return result;
 	}
 
 	@Override
 	public XQueryResult visitFilterRp(XQueryParser.FilterRpContext ctx) {
 		System.out.println("Visiting FilterRp");
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		XQueryResult rpResult = visit(ctx.relPathFilter);
+		result.setTruth(false);
+		NodeListImpl nodes = rpResult.getNodes();
+		if(nodes!=null && nodes.getLength()!=0)
+		  result.setTruth(true);
+		//System.out.println(ctx.toString());
+		return result;
 	}
 
+	public boolean xEqualy (Node x , Node y){
+		if(x==null || y==null){
+			return false;
+		}
+		if(!x.getNodeName().equals(y.getNodeName())){
+			return false;
+		}
+		if(x.getNodeType()!=y.getNodeType()){
+			return false;
+		}
+		if(!x.getTextContent().equals(y.getTextContent())){
+			return false;
+		}
+		if(x.getChildNodes().getLength()!=y.getChildNodes().getLength()){
+			return false;
+		}
+		for(int i=0;i<x.getChildNodes().getLength();i++){
+			if(!xEqualy(x.getChildNodes().item(i), y.getChildNodes().item(i))){
+				return false;
+			}
+		}
+	 return true;
+	}
 	@Override
 	public XQueryResult visitFilterEqualVal(XQueryParser.FilterEqualValContext ctx) {
 		System.out.println("Visiting FilterEqualVal");
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		//System.out.println(ctx.toString());
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		result.setTruth(false);
+		XQueryResult rp1Result = visit(ctx.left);
+		XQueryResult rp2Result = visit(ctx.right);
+		NodeListImpl nodesLeft = rp1Result.getNodes();
+		NodeListImpl nodesRight = rp2Result.getNodes();
+		if(nodesLeft==null || nodesRight==null){
+			return result;
+		}
+		for(int i=0;i<nodesLeft.getLength();i++){
+			for(int j=0;j<nodesRight.getLength();j++){
+				if(xEqualy(nodesLeft.item(i),nodesRight.item(j))){
+					result.setTruth(true);
+					break;
+				}
+			}
+		}
+		
+		
+		return result;
 	}
 
 	@Override
 	public XQueryResult visitFilterOrExpr(XQueryParser.FilterOrExprContext ctx) {
 		System.out.println("Visiting FilterOrExpr");
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		//System.out.println(ctx.toString());
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		result.setTruth(false);
+	
+		XQueryResult leftResult = visit(ctx.leftf);
+		XQueryResult rightResult = visit(ctx.rightf);
+		if(leftResult.isTrue() || rightResult.isTrue()){
+			result.setTruth(true);
+		}
+		return result;
+		
 	}
 
 	@Override
 	public XQueryResult visitFilterParenExpr(XQueryParser.FilterParenExprContext ctx) {
 		System.out.println("Visiting FilterParentExpr");
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		//System.out.println(ctx.toString());
+		
+		return visit(ctx.filter);
 	}
 
 	@Override
 	public XQueryResult visitFilterNotExpr(XQueryParser.FilterNotExprContext ctx) {
 		System.out.println("Visiting FilterNotExpr");
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		//System.out.println(ctx.toString());
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		result.setTruth(false);
+	
+		XQueryResult tempResult = visit(ctx.filter);
+		if(!tempResult.isTrue()){
+			result.setTruth(true);
+		}
+		return result;
 	}
 
+	public boolean xIsy(Node x , Node y){
+		if(x==null || y==null){
+			return false;
+		}
+		if(x==y){
+			return true;
+		}
+		else{
+		  return false;
+	    }
+	}
 	@Override
 	public XQueryResult visitFilterEqualId(XQueryParser.FilterEqualIdContext ctx) {
 		System.out.println("Visiting FilterEqualId");
-		System.out.println(ctx.toString());
-		return visitChildren(ctx);
+		//System.out.println(ctx.toString());
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		result.setTruth(false);
+		XQueryResult rp1Result = visit(ctx.left);
+		XQueryResult rp2Result = visit(ctx.right);
+		NodeListImpl nodesLeft = rp1Result.getNodes();
+		NodeListImpl nodesRight = rp2Result.getNodes();
+		if(nodesLeft==null || nodesRight==null){
+			return result;
+		}
+		for(int i=0;i<nodesLeft.getLength();i++){
+			for(int j=0;j<nodesRight.getLength();j++){
+				if(xIsy(nodesLeft.item(i),nodesRight.item(j))){
+					result.setTruth(true);
+					break;
+				}
+			}
+		}
+		
+		return result;
 	}
 
 }

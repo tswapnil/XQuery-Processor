@@ -31,7 +31,7 @@ rp : tagName=ID                 					#rpTagName
     |												#rpEmpty
 */
 
-f : rp                          					#filterRp
+f :   relPathFilter=rp             					#filterRp
     | left=rp ('='|'eq') right=rp  					#filterEqualVal
     | left=rp ('=='|'is') right=rp 					#filterEqualId
     | '(' filter=f ')'  	     					#filterParenExpr
