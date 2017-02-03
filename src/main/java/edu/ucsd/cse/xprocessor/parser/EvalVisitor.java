@@ -270,12 +270,15 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		XQueryResult leftResult = visit(ctx.left);
 
 		XQueryResultType resultType = XQueryResultType.NODES;
-
+        
 		if (leftResult.getNodes() != null && leftResult.getNodes().getLength() > 0) {
 			for (int i = 0; i < leftResult.getNodes().getLength(); i++) {
 				Node node = leftResult.getNodes().item(i);
 				currentNode = node;
 				XQueryResult rightResult = visit(ctx.right);
+				if(rightResult==null){
+					continue;
+				}
 				nodes.addAll(rightResult.getNodes());
 				resultType = rightResult.getType();
 			}
