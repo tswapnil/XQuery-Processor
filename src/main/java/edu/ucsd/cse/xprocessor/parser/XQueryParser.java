@@ -680,9 +680,7 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class FilterRpContext extends FContext {
-		
 		public RpContext relPath;
-		
 		public RpContext rp() {
 			return getRuleContext(RpContext.class,0);
 		}
@@ -840,9 +838,7 @@ public class XQueryParser extends Parser {
 				_prevctx = _localctx;
 
 				setState(56);
-
 				((FilterRpContext)_localctx).relPath = rp(0);
-
 				}
 				break;
 			case 2:

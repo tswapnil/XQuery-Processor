@@ -39,7 +39,8 @@ public class App {
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
-		String query = "doc(\"input.xml\")/supercars/carname/../carname";
+		//String query = "doc(\"input.xml\")/supercars/carname/../carname";
+		String query = "doc(\"inputs.xml\")/b//d";
 
 		ANTLRInputStream input = new ANTLRInputStream(query);
 		XQueryLexer lexer = new XQueryLexer(input);
