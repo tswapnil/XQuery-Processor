@@ -1,6 +1,6 @@
 // Generated from XQuery.g4 by ANTLR 4.6
 
-	package edu.ucsd.cse.xprocessor.parser;
+package edu.ucsd.cse.xprocessor.parser;
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -680,7 +680,7 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class FilterRpContext extends FContext {
-		public RpContext relPathFilter;
+		public RpContext relPath;
 		public RpContext rp() {
 			return getRuleContext(RpContext.class,0);
 		}
@@ -838,7 +838,7 @@ public class XQueryParser extends Parser {
 				_prevctx = _localctx;
 
 				setState(56);
-				((FilterRpContext)_localctx).relPathFilter = rp(0);
+				((FilterRpContext)_localctx).relPath = rp(0);
 				}
 				break;
 			case 2:

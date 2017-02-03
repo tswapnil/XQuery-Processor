@@ -8,6 +8,7 @@ public enum XQueryResultType {
 	
 	NODES,
 	BOOLEAN,
-	ATTR;
+	ATTR,
+	TEXT;
 
 }

@@ -1,4 +1,5 @@
 // Generated from XQuery.g4 by ANTLR 4.6
+
 package edu.ucsd.cse.xprocessor.parser;
 
 import org.antlr.v4.runtime.Lexer;

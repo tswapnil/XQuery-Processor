@@ -21,6 +21,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 import edu.ucsd.cse.xprocessor.parser.EvalVisitor;
 import edu.ucsd.cse.xprocessor.parser.XQueryLexer;
@@ -38,7 +39,8 @@ public class App {
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
-		String query = "doc(\"j_caesar.xml\")/TITLE/PERSONAE";
+		//String query = "doc(\"input.xml\")/supercars/carname/../carname";
+		String query = "doc(\"inputs.xml\")/b//d";
 
 		ANTLRInputStream input = new ANTLRInputStream(query);
 		XQueryLexer lexer = new XQueryLexer(input);
@@ -91,18 +93,26 @@ public class App {
 			// Output to console for testing
 			StreamResult consoleResult = new StreamResult(System.out);
 			transformer.transform(source, consoleResult);
-		} else {
-			if (result.getType() == XQueryResultType.ATTR) {
-				FileWriter writer = new FileWriter(new File(outputFileName));
-				if (result.getNodes() != null) {
-					for (Node node : result.getNodes()) {
-						String attrString = ((Attr) node).getValue();
-						writer.write(attrString + "\n");
-						System.out.println(attrString);
-					}
+		} else if (result.getType() == XQueryResultType.ATTR) {
+			FileWriter writer = new FileWriter(new File(outputFileName));
+			if (result.getNodes() != null) {
+				for (Node node : result.getNodes()) {
+					String attrString = ((Attr) node).getValue();
+					writer.write(attrString + "\n");
+					System.out.println(attrString);
 				}
-				writer.close();
 			}
+			writer.close();
+		} else if (result.getType() == XQueryResultType.TEXT) {
+			FileWriter writer = new FileWriter(new File(outputFileName));
+			if (result.getNodes() != null) {
+				for (Node node : result.getNodes()) {
+					String attrString = ((Text) node).getTextContent();
+					writer.write(attrString + "\n");
+					System.out.println(attrString);
+				}
+			}
+			writer.close();
 		}
 	}
 
