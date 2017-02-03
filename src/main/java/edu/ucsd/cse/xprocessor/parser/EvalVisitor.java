@@ -39,7 +39,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitApSlashFile(XQueryParser.ApSlashFileContext ctx) {
-		System.out.println("visiting ApSlashFile");
+		//System.out.println("visiting ApSlashFile");
 		File xmlFile = new File(ctx.docName.getText());
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -68,8 +68,24 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	public XQueryResult visitApDblSlashFile(XQueryParser.ApDblSlashFileContext ctx) {
 		// System.out.println("Visiting ApDblSlashFile");
 
-		if (doc == null) {
-			return null;
+		File xmlFile = new File(ctx.docName.getText());
+
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = null;
+		try {
+			docBuilder = dbFactory.newDocumentBuilder();
+			doc = docBuilder.parse(xmlFile);
+			doc.getDocumentElement().normalize();
+		} catch (ParserConfigurationException | SAXException | IOException e) {
+			System.err.println("Failed to parse the XML document '" + ctx.docName.getText() + "' : " + e);
+		}
+		
+		
+		if (doc != null) {
+			Node docRoot = doc.getDocumentElement();
+			currentNode = docRoot;
+			
+			
 		}
 
 		XQueryResultType resultType = XQueryResultType.NODES;
@@ -81,11 +97,16 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		pathStack.push(currentNode);
 		while (!pathStack.isEmpty()) {
 			Node temp = pathStack.pop();
-			NodeList currNodeChildren = temp.getChildNodes();
-			for (int i = currNodeChildren.getLength(); i >= 0; i--) {
-				pathStack.add(currNodeChildren.item(i));
+			if(temp!=null){
+				if(temp.hasChildNodes()){
+			 NodeList currNodeChildren = temp.getChildNodes();
+			  for (int i = currNodeChildren.getLength(); i >= 0; i--) {
+				 pathStack.add(currNodeChildren.item(i));
+			 }
+			
+			  allNodes.add(temp);
+			  }
 			}
-			allNodes.add(temp);
 		}
 
 		if (allNodes != null && allNodes.getLength() > 0) {
@@ -106,7 +127,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpDblSlashExpr(XQueryParser.RpDblSlashExprContext ctx) {
-		System.out.println("Visiting RpDblSlashFile");
+		//System.out.println("Visiting RpDblSlashFile");
 		System.out.flush();
 		if (doc == null) {
 			return null;
@@ -126,6 +147,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		}
 		while (!pathStack.isEmpty()) {
 			Node temp = pathStack.pop();
+			if(temp!=null){
+				if(temp.hasChildNodes()){
 			NodeList currNodeChildren = temp.getChildNodes();
 			for (int i = currNodeChildren.getLength(); i >= 0; i--) {
 				Node child = currNodeChildren.item(i);
@@ -133,7 +156,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 					pathStack.add(child);
 				}
 			}
-			allLeftNodes.add(temp);
+			  allLeftNodes.add(temp);
+			  }
+			}
 		}
 
 		if (allLeftNodes != null && allLeftNodes.getLength() > 0) {
@@ -311,7 +336,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpDblDot(XQueryParser.RpDblDotContext ctx) {
-		System.out.println("Visiting RpDblDot");
+		//System.out.println("Visiting RpDblDot");
 		if (doc == null) {
 			return null;
 		}
@@ -347,7 +372,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpAttrName(XQueryParser.RpAttrNameContext ctx) {
-		System.out.println("Visiting RpAttrName");
+		//System.out.println("Visiting RpAttrName");
 		if (doc == null) {
 			return null;
 		}
@@ -363,7 +388,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpWildcard(XQueryParser.RpWildcardContext ctx) {
-		System.out.println("Visiting RpWildCard");
+		//System.out.println("Visiting RpWildCard");
 		if (doc == null) {
 			return null;
 		}
@@ -382,7 +407,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpParenExpr(XQueryParser.RpParenExprContext ctx) {
-		System.out.println("Visiting RpParentExpr");
+		//System.out.println("Visiting RpParentExpr");
 		if (doc == null) {
 			return null;
 		}
@@ -394,13 +419,15 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitFilterAndExpr(XQueryParser.FilterAndExprContext ctx) {
-		System.out.println("Visiting FilterAndExpr");
+		//System.out.println("Visiting FilterAndExpr");
 		// System.out.println(ctx.toString());
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
-
+        Node temp = currentNode;
 		XQueryResult leftResult = visit(ctx.leftf);
+		currentNode = temp;
 		XQueryResult rightResult = visit(ctx.rightf);
+		currentNode = temp;
 		if (leftResult.isTrue() && rightResult.isTrue()) {
 			result.setTruth(true);
 		}
@@ -409,9 +436,11 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitFilterRp(XQueryParser.FilterRpContext ctx) {
-		System.out.println("Visiting FilterRp");
+		//System.out.println("Visiting FilterRp");
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		Node temp = currentNode;
 		XQueryResult rpResult = visit(ctx.relPath);
+		currentNode = temp;
 		result.setTruth(false);
 		NodeListImpl nodes = rpResult.getNodes();
 		if (nodes != null && nodes.getLength() != 0)
@@ -446,12 +475,15 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitFilterEqualVal(XQueryParser.FilterEqualValContext ctx) {
-		System.out.println("Visiting FilterEqualVal");
+		//System.out.println("Visiting FilterEqualVal");
 		// System.out.println(ctx.toString());
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
+		Node temp = currentNode;
 		XQueryResult rp1Result = visit(ctx.left);
+		currentNode = temp;
 		XQueryResult rp2Result = visit(ctx.right);
+		currentNode = temp;
 		NodeListImpl nodesLeft = rp1Result.getNodes();
 		NodeListImpl nodesRight = rp2Result.getNodes();
 		if (nodesLeft == null || nodesRight == null) {
@@ -471,13 +503,15 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitFilterOrExpr(XQueryParser.FilterOrExprContext ctx) {
-		System.out.println("Visiting FilterOrExpr");
+		//System.out.println("Visiting FilterOrExpr");
 		// System.out.println(ctx.toString());
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
-
+        Node temp = currentNode;
 		XQueryResult leftResult = visit(ctx.leftf);
+		currentNode = temp;
 		XQueryResult rightResult = visit(ctx.rightf);
+		currentNode = temp;
 		if (leftResult.isTrue() || rightResult.isTrue()) {
 			result.setTruth(true);
 		}
@@ -487,20 +521,23 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitFilterParenExpr(XQueryParser.FilterParenExprContext ctx) {
-		System.out.println("Visiting FilterParentExpr");
+		//System.out.println("Visiting FilterParentExpr");
 		// System.out.println(ctx.toString());
-
-		return visit(ctx.filter);
+		Node temp = currentNode;
+        XQueryResult result = visit(ctx.filter);
+        currentNode = temp;
+		return result;
 	}
 
 	@Override
 	public XQueryResult visitFilterNotExpr(XQueryParser.FilterNotExprContext ctx) {
-		System.out.println("Visiting FilterNotExpr");
+		//System.out.println("Visiting FilterNotExpr");
 		// System.out.println(ctx.toString());
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
-
+        Node temp = currentNode;
 		XQueryResult tempResult = visit(ctx.filter);
+		currentNode = temp;
 		if (!tempResult.isTrue()) {
 			result.setTruth(true);
 		}
@@ -520,12 +557,16 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitFilterEqualId(XQueryParser.FilterEqualIdContext ctx) {
-		System.out.println("Visiting FilterEqualId");
+		//System.out.println("Visiting FilterEqualId");
 		// System.out.println(ctx.toString());
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
+		Node temp = currentNode;
 		XQueryResult rp1Result = visit(ctx.left);
+		currentNode = temp;
+		
 		XQueryResult rp2Result = visit(ctx.right);
+		currentNode = temp;
 		NodeListImpl nodesLeft = rp1Result.getNodes();
 		NodeListImpl nodesRight = rp2Result.getNodes();
 		if (nodesLeft == null || nodesRight == null) {

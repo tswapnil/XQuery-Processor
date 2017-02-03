@@ -3,6 +3,9 @@ package edu.ucsd.cse.xprocessor;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,6 +29,7 @@ import org.w3c.dom.Text;
 import edu.ucsd.cse.xprocessor.parser.EvalVisitor;
 import edu.ucsd.cse.xprocessor.parser.XQueryLexer;
 import edu.ucsd.cse.xprocessor.parser.XQueryParser;
+import edu.ucsd.cse.xprocessor.result.NodeListImpl;
 import edu.ucsd.cse.xprocessor.result.XQueryResult;
 import edu.ucsd.cse.xprocessor.result.XQueryResultType;
 
@@ -39,8 +43,8 @@ public class App {
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
-		//String query = "doc(\"input.xml\")/supercars/carname/../carname";
-		String query = "doc(\"inputs.xml\")/b//d";
+		String query = "doc(\"input.xml\")/supercars[ (not carname/.)]";
+		//String query = "doc(\"j_caesar.xml\")//ACT[not(./TITLE)==(./TITLE)]/*/SPEECH/../TITLE";
 
 		ANTLRInputStream input = new ANTLRInputStream(query);
 		XQueryLexer lexer = new XQueryLexer(input);
@@ -52,13 +56,34 @@ public class App {
 		ParseTree tree = parser.start();
 		EvalVisitor visitor = new EvalVisitor();
 		XQueryResult result = visitor.visit(tree);
-
+		NodeListImpl nodes = result.getNodes();
+		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
+		
+        if(nodes!=null){
+        	for(int i=0;i<nodes.getLength();i++){
+              map.put(nodes.item(i), i);		
+        	}
+        	NodeListImpl newNodes = new NodeListImpl();
+        	Iterator it = map.entrySet().iterator();
+        	while(it.hasNext()){
+        		Map.Entry pair = (Map.Entry) it.next();
+        	    Node temp = (Node) pair.getKey();
+        	    newNodes.add(temp);
+        	}
+        	result.setNodes(newNodes);
+        }
+        
+        
 		generateResultXMLFile(result);
 
 	}
 
 	public static void generateResultXMLFile(XQueryResult result)
 			throws ParserConfigurationException, TransformerException, IOException {
+		if(result==null){
+			System.out.println("Returned result is null");
+			return;
+		}
 		if (result.getType() == XQueryResultType.NODES) {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
