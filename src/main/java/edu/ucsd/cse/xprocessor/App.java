@@ -35,6 +35,7 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
 
 /**
  * @author Dhruv Sharma (dhsharma@cs.ucsd.edu)
+ * @author Swapnil Taneja
  *
  */
 public class App {
