@@ -44,7 +44,7 @@ public class App {
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
-		String query = "doc(\"input.xml\")/supercars[ (not carname/.)]";
+		String query = "doc(\"input.xml\")/supercars/@Ferrari";
 		//String query = "doc(\"j_caesar.xml\")//ACT[not(./TITLE)==(./TITLE)]/*/SPEECH/../TITLE";
 
 		ANTLRInputStream input = new ANTLRInputStream(query);
@@ -123,6 +123,9 @@ public class App {
 			FileWriter writer = new FileWriter(new File(outputFileName));
 			if (result.getNodes() != null) {
 				for (Node node : result.getNodes()) {
+					if(node==null){
+						continue;
+					}
 					String attrString = ((Attr) node).getValue();
 					writer.write(attrString + "\n");
 					System.out.println(attrString);

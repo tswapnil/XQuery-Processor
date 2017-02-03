@@ -376,10 +376,15 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		if (doc == null) {
 			return null;
 		}
-
+        
 		XQueryResult result = new XQueryResult(XQueryResultType.ATTR);
+          if(ctx.attrName==null){
+        	  return result;
+        }
+		
 		NodeListImpl nodes = new NodeListImpl();
-		nodes.add(((Element) currentNode).getAttributeNode(ctx.attrName.getText()));
+		Node att = ((Element) currentNode).getAttributeNode(ctx.attrName.getText());
+		nodes.add(att);
 
 		result.setNodes(nodes);
 
