@@ -21,6 +21,7 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
 
 /**
  * @author Dhruv Sharma (dhsharma@cs.ucsd.edu)
+ * @author Swapnil Taneja (swtaneja@eng.ucsd.edu)
  * @param <T>
  *
  */
