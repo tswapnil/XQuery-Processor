@@ -47,6 +47,13 @@ public interface XQueryVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitXqContTagExpr(XQueryParser.XqContTagExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code xqConcatExpr}
+	 * labeled alternative in {@link XQueryParser#xq}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitXqConcatExpr(XQueryParser.XqConcatExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code xqParenExpr}
 	 * labeled alternative in {@link XQueryParser#xq}.
 	 * @param ctx the parse tree
@@ -54,12 +61,12 @@ public interface XQueryVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitXqParenExpr(XQueryParser.XqParenExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code xqConstDef}
+	 * Visit a parse tree produced by the {@code xqStrConstDef}
 	 * labeled alternative in {@link XQueryParser#xq}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitXqConstDef(XQueryParser.XqConstDefContext ctx);
+	T visitXqStrConstDef(XQueryParser.XqStrConstDefContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code xqLetExpr}
 	 * labeled alternative in {@link XQueryParser#xq}.
@@ -67,13 +74,6 @@ public interface XQueryVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitXqLetExpr(XQueryParser.XqLetExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code xqCommaExpr}
-	 * labeled alternative in {@link XQueryParser#xq}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitXqCommaExpr(XQueryParser.XqCommaExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code xqDblSlashExpr}
 	 * labeled alternative in {@link XQueryParser#xq}.

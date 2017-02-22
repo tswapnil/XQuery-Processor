@@ -13,8 +13,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
+import edu.ucsd.cse.xprocessor.parser.context.XQueryContext;
 import edu.ucsd.cse.xprocessor.result.NodeListImpl;
 import edu.ucsd.cse.xprocessor.result.XQueryResult;
 import edu.ucsd.cse.xprocessor.result.XQueryResultType;
@@ -28,25 +30,65 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
 public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	private Document doc;
+	private Stack<XQueryContext> contextStack;
 	private Stack<Node> pathStack;
 	private Node currentNode;
+	private XQueryContext currentContext;
 
 	public EvalVisitor() {
 		super();
 		this.doc = null;
+		this.contextStack = new Stack<XQueryContext>();
 		this.pathStack = new Stack<Node>();
 		this.currentNode = null;
+		this.currentContext = null;
 	}
 
 	/**
-	 * Milestone #2 Ends
+	 * Milestone #2
 	 */
+
+	private static Text makeText(String text) {
+		Text textNode = null;
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.newDocument();
+			textNode = doc.createTextNode(text);
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+
+		return textNode;
+	}
+
+	private static Element makeElement(String tagName, NodeListImpl nodes) {
+		Element elementNode = null;
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.newDocument();
+			elementNode = doc.createElement(tagName);
+			if (nodes != null) {
+				for (Node node : nodes) {
+					if (node.getNodeType() == Node.ELEMENT_NODE || node.getNodeType() == Node.TEXT_NODE) {
+						elementNode.appendChild(doc.importNode(node, true));
+					}
+				}
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+
+		return elementNode;
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public XQueryResult visitXqAp(XQueryParser.XqApContext ctx) {
+		// no change required
 		return visitChildren(ctx);
 	}
 
@@ -55,6 +97,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqJoinExpr(XQueryParser.XqJoinExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -63,7 +106,12 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqVar(XQueryParser.XqVarContext ctx) {
-		return visitChildren(ctx);
+		if (currentContext != null) {
+			String varName = ctx.var.getText();
+			return currentContext.getVariableValue(varName);
+		}
+
+		return null;
 	}
 
 	/**
@@ -71,7 +119,25 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqContTagExpr(XQueryParser.XqContTagExprContext ctx) {
-		return visitChildren(ctx);
+
+		// make sure open and closing tag names match
+		if (!ctx.openTagName.getText().equals(ctx.closeTagName.getText())) {
+			return null;
+		}
+
+		String tagName = ctx.openTagName.getText();
+		XQueryResult queryResult = visit(ctx.query);
+		NodeListImpl queryNodes = null;
+		if (queryResult != null) {
+			queryNodes = queryResult.getNodes();
+		}
+
+		NodeListImpl nodes = new NodeListImpl();
+		nodes.add(makeElement(tagName, queryNodes));
+		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
+		result.setNodes(nodes);
+
+		return result;
 	}
 
 	/**
@@ -79,15 +145,24 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqParenExpr(XQueryParser.XqParenExprContext ctx) {
-		return visitChildren(ctx);
+		// no further change required
+		return visit(ctx.query);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public XQueryResult visitXqConstDef(XQueryParser.XqConstDefContext ctx) {
-		return visitChildren(ctx);
+	public XQueryResult visitXqStrConstDef(XQueryParser.XqStrConstDefContext ctx) {
+		String strConst = ctx.strConst.getText();
+
+		NodeListImpl nodes = new NodeListImpl();
+		nodes.add(makeText(strConst));
+
+		XQueryResult result = new XQueryResult(XQueryResultType.TEXT);
+		result.setNodes(nodes);
+
+		return result;
 	}
 
 	/**
@@ -95,6 +170,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqLetExpr(XQueryParser.XqLetExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -102,8 +178,35 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public XQueryResult visitXqCommaExpr(XQueryParser.XqCommaExprContext ctx) {
-		return visitChildren(ctx);
+	public XQueryResult visitXqConcatExpr(XQueryParser.XqConcatExprContext ctx) {
+		XQueryResult leftResult = visit(ctx.leftQuery);
+		XQueryResult rightResult = visit(ctx.rightQuery);
+
+		if (leftResult != null && rightResult != null && leftResult.getType() != rightResult.getType()) {
+			System.err.println("Cannot concatenate lists of different types");
+			return null;
+		}
+
+		XQueryResultType resultType = XQueryResultType.NODES;
+		NodeListImpl nodes = new NodeListImpl();
+		if (leftResult != null) {
+			resultType = leftResult.getType();
+			if (leftResult.getNodes() != null) {
+				nodes.addAll(leftResult.getNodes());
+			}
+		}
+
+		if (rightResult != null) {
+			resultType = rightResult.getType();
+			if (rightResult.getNodes() != null) {
+				nodes.addAll(rightResult.getNodes());
+			}
+		}
+
+		XQueryResult result = new XQueryResult(resultType);
+		result.setNodes(nodes);
+
+		return result;
 	}
 
 	/**
@@ -111,6 +214,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqDblSlashExpr(XQueryParser.XqDblSlashExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -119,6 +223,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -127,6 +232,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqSlashExpr(XQueryParser.XqSlashExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -135,6 +241,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitForVarIter(XQueryParser.ForVarIterContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -143,6 +250,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitLetVarDef(XQueryParser.LetVarDefContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -151,6 +259,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitWhereCondExpr(XQueryParser.WhereCondExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -159,6 +268,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitReturnQuery(XQueryParser.ReturnQueryContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -167,6 +277,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEmpty(XQueryParser.CondEmptyContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -175,6 +286,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondVarCheck(XQueryParser.CondVarCheckContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -183,6 +295,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondOrExpr(XQueryParser.CondOrExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -191,6 +304,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondParenExpr(XQueryParser.CondParenExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -199,6 +313,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualVal(XQueryParser.CondEqualValContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -207,6 +322,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondAndExpr(XQueryParser.CondAndExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -215,6 +331,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualId(XQueryParser.CondEqualIdContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -223,6 +340,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondNotExpr(XQueryParser.CondNotExprContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 
@@ -231,6 +349,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitJoinDef(XQueryParser.JoinDefContext ctx) {
+		// TODO: to be completed
 		return visitChildren(ctx);
 	}
 

@@ -11,10 +11,10 @@ start : xq
 	;
 	
 xq : var=ID																											#xqVar
-	| '"' strConst=STRING '"'																						#xqConstDef
+	| '"' strConst=STRING '"'																						#xqStrConstDef
 	| ap																											#xqAp
 	| '(' query=xq ')'																								#xqParenExpr
-	| leftQuery=xq ',' rightQuery=xq																				#xqCommaExpr
+	| leftQuery=xq ',' rightQuery=xq																				#xqConcatExpr
 	| query=xq '/' relPath=rp																						#xqSlashExpr
 	| query=xq '//' relPath=rp																						#xqDblSlashExpr
 	| '<' openTagName=ID '>' '{' query=xq '}' '</' closeTagName=ID '>'												#xqContTagExpr

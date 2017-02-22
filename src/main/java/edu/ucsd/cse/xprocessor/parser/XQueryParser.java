@@ -193,6 +193,22 @@ public class XQueryParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
+	public static class XqConcatExprContext extends XqContext {
+		public XqContext leftQuery;
+		public XqContext rightQuery;
+		public List<XqContext> xq() {
+			return getRuleContexts(XqContext.class);
+		}
+		public XqContext xq(int i) {
+			return getRuleContext(XqContext.class,i);
+		}
+		public XqConcatExprContext(XqContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof XQueryVisitor ) return ((XQueryVisitor<? extends T>)visitor).visitXqConcatExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
 	public static class XqParenExprContext extends XqContext {
 		public XqContext query;
 		public XqContext xq() {
@@ -205,13 +221,13 @@ public class XQueryParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
-	public static class XqConstDefContext extends XqContext {
+	public static class XqStrConstDefContext extends XqContext {
 		public Token strConst;
 		public TerminalNode STRING() { return getToken(XQueryParser.STRING, 0); }
-		public XqConstDefContext(XqContext ctx) { copyFrom(ctx); }
+		public XqStrConstDefContext(XqContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof XQueryVisitor ) return ((XQueryVisitor<? extends T>)visitor).visitXqConstDef(this);
+			if ( visitor instanceof XQueryVisitor ) return ((XQueryVisitor<? extends T>)visitor).visitXqStrConstDef(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -227,22 +243,6 @@ public class XQueryParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof XQueryVisitor ) return ((XQueryVisitor<? extends T>)visitor).visitXqLetExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	public static class XqCommaExprContext extends XqContext {
-		public XqContext leftQuery;
-		public XqContext rightQuery;
-		public List<XqContext> xq() {
-			return getRuleContexts(XqContext.class);
-		}
-		public XqContext xq(int i) {
-			return getRuleContext(XqContext.class,i);
-		}
-		public XqCommaExprContext(XqContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof XQueryVisitor ) return ((XQueryVisitor<? extends T>)visitor).visitXqCommaExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -330,13 +330,13 @@ public class XQueryParser extends Parser {
 				break;
 			case T__0:
 				{
-				_localctx = new XqConstDefContext(_localctx);
+				_localctx = new XqStrConstDefContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(26);
 				match(T__0);
 				setState(27);
-				((XqConstDefContext)_localctx).strConst = match(STRING);
+				((XqStrConstDefContext)_localctx).strConst = match(STRING);
 				setState(28);
 				match(T__0);
 				}
@@ -456,15 +456,15 @@ public class XQueryParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,3,_ctx) ) {
 					case 1:
 						{
-						_localctx = new XqCommaExprContext(new XqContext(_parentctx, _parentState));
-						((XqCommaExprContext)_localctx).leftQuery = _prevctx;
+						_localctx = new XqConcatExprContext(new XqContext(_parentctx, _parentState));
+						((XqConcatExprContext)_localctx).leftQuery = _prevctx;
 						pushNewRecursionContext(_localctx, _startState, RULE_xq);
 						setState(59);
 						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
 						setState(60);
 						match(T__3);
 						setState(61);
-						((XqCommaExprContext)_localctx).rightQuery = xq(8);
+						((XqConcatExprContext)_localctx).rightQuery = xq(8);
 						}
 						break;
 					case 2:
