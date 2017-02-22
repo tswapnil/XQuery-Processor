@@ -7,7 +7,7 @@ package edu.ucsd.cse.xprocessor.parser;
 
 
 
-start : ap
+start : xq
 	;
 	
 xq : var=ID																											#xqVar
@@ -18,20 +18,18 @@ xq : var=ID																											#xqVar
 	| query=xq '/' relPath=rp																						#xqSlashExpr
 	| query=xq '//' relPath=rp																						#xqDblSlashExpr
 	| '<' openTagName=ID '>' '{' query=xq '}' '</' closeTagName=ID '>'												#xqContTagExpr
-	| forClause letClause whereClause returnClause																	#xqForExpr
+	| forClause letClause? whereClause? returnClause																#xqForExpr
 	| letClause query=xq																							#xqLetExpr
-	| joinClause
+	| joinClause																									#xqJoinExpr
 	;
 	
 forClause : 'for' varList+=ID 'in' queryList+=xq (',' varList+=ID 'in' queryList+=xq)*								#forVarIter
 	;
 	
 letClause : 'let' varList+=ID ':=' queryList+=xq (',' varList+=ID ':=' queryList+=xq)*								#letVarDef
-	| /* epsilon */																									#letEps
 	;
 	
 whereClause : 'where' condition=cond																				#whereCondExpr
-	| /* epsilon */																									#whereEps
 	;
 	
 returnClause : 'return' query=xq																					#returnQuery
@@ -47,7 +45,10 @@ cond : leftQuery=xq ('='|'eq') rightQuery=xq																		#condEqualVal
 	| 'not' condition=cond																							#condNotExpr
 	;
 	
-joinClause : 'join' '(' query1=xq ',' query2=xq ',' attrList1=ATTRLIST ',' attrList2=ATTRLIST ')'					#joinExpr
+joinClause : 'join' '(' query1=xq ',' query2=xq ','
+	'[' '"' attrList1+=ID '"' (',' '"' attrList1+=ID '"')* ']' ','
+	'[' '"' attrList2+=ID '"' (',' '"' attrList2+=ID '"')* ']'
+	')'																												#joinDef
 	;
 
 ap : 'doc("' docName=FILE '")' '/' relpath=rp     																	#apSlashFile
@@ -82,10 +83,8 @@ ID : ALPHA ALNUM*
 FILE : CHARS+
     ;
     
-STRING : CHARS*
+STRING : ALNUM+
 	;
-	
-ATTRLIST : '[' '"' attrList+=ID '"' (',' '"' attrList+=ID '"')* ']'
 
 fragment
 CHARS : [_a-zA-Z\-.]
