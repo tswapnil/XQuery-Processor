@@ -1,8 +1,8 @@
-/XQuery.tokens
-/XQueryBaseListener.java
-/XQueryBaseVisitor.java
-/XQueryLexer.java
-/XQueryLexer.tokens
-/XQueryListener.java
-/XQueryParser.java
-/XQueryVisitor.java
+#/XQuery.tokens
+#/XQueryBaseListener.java
+#/XQueryBaseVisitor.java
+#/XQueryLexer.java
+#/XQueryLexer.tokens
+#/XQueryListener.java
+#/XQueryParser.java
+#/XQueryVisitor.java
