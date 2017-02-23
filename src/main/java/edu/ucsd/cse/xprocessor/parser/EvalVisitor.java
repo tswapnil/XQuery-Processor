@@ -277,8 +277,18 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEmpty(XQueryParser.CondEmptyContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		XQueryResult result = null;
+		XQueryResult queryResult = visit(ctx.query);
+		if (queryResult == null) {
+			result = new XQueryResult(XQueryResultType.BOOLEAN);
+			result.setTruth(true);
+		} else if(queryResult.getType() != XQueryResultType.BOOLEAN) {
+			result = new XQueryResult(XQueryResultType.BOOLEAN);
+			result.setTruth(queryResult.getNodes().isEmpty());
+		} else {
+			/* do nothing */
+		}
+		return result;
 	}
 
 	/**
@@ -295,8 +305,16 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondOrExpr(XQueryParser.CondOrExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		XQueryResult result = null;
+		XQueryResult leftResult = visit(ctx.leftCondition);
+		XQueryResult rightResult = visit(ctx.rightCondition);
+		if (leftResult != null && rightResult != null
+				&& leftResult.getType() == XQueryResultType.BOOLEAN
+				&& rightResult.getType() == XQueryResultType.BOOLEAN) {
+			result = new XQueryResult(XQueryResultType.BOOLEAN);
+			result.setTruth(leftResult.isTrue() || rightResult.isTrue());
+		}
+		return result;
 	}
 
 	/**
@@ -304,8 +322,13 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondParenExpr(XQueryParser.CondParenExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		XQueryResult result = null;
+		XQueryResult conditionResult = visit(ctx.condition);
+		if (conditionResult != null && conditionResult.getType() == XQueryResultType.BOOLEAN) {
+			result = new XQueryResult(XQueryResultType.BOOLEAN);
+			result.setTruth(conditionResult.isTrue());
+		}
+		return result;
 	}
 
 	/**
@@ -322,8 +345,15 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondAndExpr(XQueryParser.CondAndExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		XQueryResult result = null;
+		XQueryResult leftResult = visit(ctx.leftCondition);
+		XQueryResult rightResult = visit(ctx.rightCondition);
+		if (leftResult != null && rightResult != null && leftResult.getType() == XQueryResultType.BOOLEAN
+				&& rightResult.getType() == XQueryResultType.BOOLEAN) {
+			result = new XQueryResult(XQueryResultType.BOOLEAN);
+			result.setTruth(leftResult.isTrue() && rightResult.isTrue());
+		}
+		return result;
 	}
 
 	/**
@@ -340,8 +370,14 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondNotExpr(XQueryParser.CondNotExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		XQueryResult result = null;
+		XQueryResult conditionResult = visit(ctx.condition);
+		if (conditionResult != null && conditionResult.getType() == XQueryResultType.BOOLEAN) {
+			result = new XQueryResult(XQueryResultType.BOOLEAN);
+			result.setTruth(!conditionResult.isTrue());
+		}
+
+		return result;
 	}
 
 	/**
