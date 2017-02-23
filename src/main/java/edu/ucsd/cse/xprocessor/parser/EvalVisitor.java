@@ -41,7 +41,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		this.contextStack = new Stack<XQueryContext>();
 		this.pathStack = new Stack<Node>();
 		this.currentNode = null;
-		this.currentContext = null;
+		this.currentContext = new XQueryContext();
 	}
 
 	/**
@@ -109,9 +109,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		if (currentContext != null) {
 			String varName = ctx.var.getText();
 			return currentContext.getVariableValue(varName);
+		} else {
+			throw new NullPointerException("Variable context is null");
 		}
-
-		return null;
 	}
 
 	/**
@@ -170,8 +170,16 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqLetExpr(XQueryParser.XqLetExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		if (currentContext != null) {
+			// letClause only updates the current context but returns null so
+			// ignoring return value
+			visit(ctx.declaration);
+
+			XQueryResult queryResult = visit(ctx.query);
+			return queryResult;
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
 	}
 
 	/**
@@ -214,8 +222,49 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqDblSlashExpr(XQueryParser.XqDblSlashExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		
+		XQueryResultType resultType = XQueryResultType.NODES;
+
+		NodeListImpl nodes = new NodeListImpl();
+		NodeListImpl allQueryNodes = new NodeListImpl();
+
+		XQueryResult queryResult = visit(ctx.query);
+		if (queryResult != null && queryResult.getNodes() != null) {
+			for (int i = queryResult.getNodes().getLength(); i >= 0; i--) {
+				pathStack.push(queryResult.getNodes().item(i));
+			}
+		}
+		
+		while (!pathStack.isEmpty()) {
+			Node temp = pathStack.pop();
+			if (temp != null) {
+				if (temp.hasChildNodes()) {
+					NodeList currNodeChildren = temp.getChildNodes();
+					for (int i = currNodeChildren.getLength(); i >= 0; i--) {
+						Node child = currNodeChildren.item(i);
+						if (child != null && child.getNodeType() == Node.ELEMENT_NODE) {
+							pathStack.add(child);
+						}
+					}
+					allQueryNodes.add(temp);
+				}
+			}
+		}
+
+		if (allQueryNodes != null && allQueryNodes.getLength() > 0) {
+			for (int i = 0; i < allQueryNodes.getLength(); i++) {
+				Node node = allQueryNodes.item(i);
+				currentNode = node;
+				XQueryResult rpResult = visit(ctx.relPath);
+				nodes.addAll(rpResult.getNodes());
+				resultType = rpResult.getType();
+			}
+		}
+
+		XQueryResult result = new XQueryResult(resultType);
+		result.setNodes(nodes);
+
+		return result;
 	}
 
 	/**
@@ -232,8 +281,28 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqSlashExpr(XQueryParser.XqSlashExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		NodeListImpl nodes = new NodeListImpl();
+		XQueryResult queryResult = visit(ctx.query);
+
+		XQueryResultType resultType = XQueryResultType.NODES;
+
+		if (queryResult.getNodes() != null && queryResult.getNodes().getLength() > 0) {
+			for (int i = 0; i < queryResult.getNodes().getLength(); i++) {
+				Node node = queryResult.getNodes().item(i);
+				currentNode = node;
+				XQueryResult rpResult = visit(ctx.relPath);
+				if (rpResult == null) {
+					continue;
+				}
+				nodes.addAll(rpResult.getNodes());
+				resultType = rpResult.getType();
+			}
+		}
+
+		XQueryResult result = new XQueryResult(resultType);
+		result.setNodes(nodes);
+
+		return result;
 	}
 
 	/**
@@ -250,8 +319,21 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitLetVarDef(XQueryParser.LetVarDefContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		if (currentContext != null) {
+			if (ctx.varList.size() != ctx.queryList.size()) {
+				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
+			}
+			
+			for (int i = 0; i < ctx.varList.size(); i++) {
+				String varName = ctx.varList.get(i).getText();
+				XQueryResult subQueryResult = visit(ctx.queryList.get(i));
+				currentContext = currentContext.setVariableValue(varName, subQueryResult);
+			}
+			
+			return null;
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
 	}
 
 	/**
@@ -282,7 +364,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		if (queryResult == null) {
 			result = new XQueryResult(XQueryResultType.BOOLEAN);
 			result.setTruth(true);
-		} else if(queryResult.getType() != XQueryResultType.BOOLEAN) {
+		} else if (queryResult.getType() != XQueryResultType.BOOLEAN) {
 			result = new XQueryResult(XQueryResultType.BOOLEAN);
 			result.setTruth(queryResult.getNodes().isEmpty());
 		} else {
@@ -308,8 +390,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		XQueryResult result = null;
 		XQueryResult leftResult = visit(ctx.leftCondition);
 		XQueryResult rightResult = visit(ctx.rightCondition);
-		if (leftResult != null && rightResult != null
-				&& leftResult.getType() == XQueryResultType.BOOLEAN
+		if (leftResult != null && rightResult != null && leftResult.getType() == XQueryResultType.BOOLEAN
 				&& rightResult.getType() == XQueryResultType.BOOLEAN) {
 			result = new XQueryResult(XQueryResultType.BOOLEAN);
 			result.setTruth(leftResult.isTrue() || rightResult.isTrue());
@@ -486,7 +567,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitRpDblSlashExpr(XQueryParser.RpDblSlashExprContext ctx) {
 		// System.out.println("Visiting RpDblSlashFile");
-		System.out.flush();
+		// System.out.flush();
 		if (doc == null) {
 			return null;
 		}

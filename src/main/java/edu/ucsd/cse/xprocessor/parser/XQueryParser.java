@@ -155,6 +155,7 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class XqJoinExprContext extends XqContext {
+		public JoinClauseContext join;
 		public JoinClauseContext joinClause() {
 			return getRuleContext(JoinClauseContext.class,0);
 		}
@@ -232,6 +233,7 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class XqLetExprContext extends XqContext {
+		public LetClauseContext declaration;
 		public XqContext query;
 		public LetClauseContext letClause() {
 			return getRuleContext(LetClauseContext.class,0);
@@ -263,6 +265,10 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class XqForExprContext extends XqContext {
+		public ForClauseContext loop;
+		public LetClauseContext declaration;
+		public WhereClauseContext condition;
+		public ReturnClauseContext output;
 		public ForClauseContext forClause() {
 			return getRuleContext(ForClauseContext.class,0);
 		}
@@ -394,14 +400,14 @@ public class XQueryParser extends Parser {
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(44);
-				forClause();
+				((XqForExprContext)_localctx).loop = forClause();
 				setState(46);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==T__13) {
 					{
 					setState(45);
-					letClause();
+					((XqForExprContext)_localctx).declaration = letClause();
 					}
 				}
 
@@ -411,12 +417,12 @@ public class XQueryParser extends Parser {
 				if (_la==T__15) {
 					{
 					setState(48);
-					whereClause();
+					((XqForExprContext)_localctx).condition = whereClause();
 					}
 				}
 
 				setState(51);
-				returnClause();
+				((XqForExprContext)_localctx).output = returnClause();
 				}
 				break;
 			case T__13:
@@ -425,7 +431,7 @@ public class XQueryParser extends Parser {
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(53);
-				letClause();
+				((XqLetExprContext)_localctx).declaration = letClause();
 				setState(54);
 				((XqLetExprContext)_localctx).query = xq(2);
 				}
@@ -436,7 +442,7 @@ public class XQueryParser extends Parser {
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(56);
-				joinClause();
+				((XqJoinExprContext)_localctx).join = joinClause();
 				}
 				break;
 			default:
