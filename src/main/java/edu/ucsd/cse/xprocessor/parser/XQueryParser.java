@@ -24,7 +24,7 @@ public class XQueryParser extends Parser {
 		T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, T__22=23, T__23=24, 
 		T__24=25, T__25=26, T__26=27, T__27=28, T__28=29, T__29=30, T__30=31, 
 		T__31=32, T__32=33, T__33=34, T__34=35, T__35=36, T__36=37, ID=38, FILE=39, 
-		STRING=40, WS=41;
+		STRING=40, VAR=41, WS=42;
 	public static final int
 		RULE_start = 0, RULE_xq = 1, RULE_forClause = 2, RULE_letClause = 3, RULE_whereClause = 4, 
 		RULE_returnClause = 5, RULE_cond = 6, RULE_joinClause = 7, RULE_ap = 8, 
@@ -45,7 +45,7 @@ public class XQueryParser extends Parser {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
 		null, null, null, null, null, null, null, null, null, null, null, null, 
 		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, "ID", "FILE", "STRING", "WS"
+		null, null, "ID", "FILE", "STRING", "VAR", "WS"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -168,7 +168,7 @@ public class XQueryParser extends Parser {
 	}
 	public static class XqVarContext extends XqContext {
 		public Token var;
-		public TerminalNode ID() { return getToken(XQueryParser.ID, 0); }
+		public TerminalNode VAR() { return getToken(XQueryParser.VAR, 0); }
 		public XqVarContext(XqContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
@@ -324,14 +324,14 @@ public class XQueryParser extends Parser {
 			setState(57);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case ID:
+			case VAR:
 				{
 				_localctx = new XqVarContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
 				setState(25);
-				((XqVarContext)_localctx).var = match(ID);
+				((XqVarContext)_localctx).var = match(VAR);
 				}
 				break;
 			case T__0:
@@ -531,13 +531,13 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class ForVarIterContext extends ForClauseContext {
-		public Token ID;
+		public Token VAR;
 		public List<Token> varList = new ArrayList<Token>();
 		public XqContext xq;
 		public List<XqContext> queryList = new ArrayList<XqContext>();
-		public List<TerminalNode> ID() { return getTokens(XQueryParser.ID); }
-		public TerminalNode ID(int i) {
-			return getToken(XQueryParser.ID, i);
+		public List<TerminalNode> VAR() { return getTokens(XQueryParser.VAR); }
+		public TerminalNode VAR(int i) {
+			return getToken(XQueryParser.VAR, i);
 		}
 		public List<XqContext> xq() {
 			return getRuleContexts(XqContext.class);
@@ -564,8 +564,8 @@ public class XQueryParser extends Parser {
 			setState(73);
 			match(T__11);
 			setState(74);
-			((ForVarIterContext)_localctx).ID = match(ID);
-			((ForVarIterContext)_localctx).varList.add(((ForVarIterContext)_localctx).ID);
+			((ForVarIterContext)_localctx).VAR = match(VAR);
+			((ForVarIterContext)_localctx).varList.add(((ForVarIterContext)_localctx).VAR);
 			setState(75);
 			match(T__12);
 			setState(76);
@@ -580,8 +580,8 @@ public class XQueryParser extends Parser {
 				setState(77);
 				match(T__3);
 				setState(78);
-				((ForVarIterContext)_localctx).ID = match(ID);
-				((ForVarIterContext)_localctx).varList.add(((ForVarIterContext)_localctx).ID);
+				((ForVarIterContext)_localctx).VAR = match(VAR);
+				((ForVarIterContext)_localctx).varList.add(((ForVarIterContext)_localctx).VAR);
 				setState(79);
 				match(T__12);
 				setState(80);
@@ -618,13 +618,13 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class LetVarDefContext extends LetClauseContext {
-		public Token ID;
+		public Token VAR;
 		public List<Token> varList = new ArrayList<Token>();
 		public XqContext xq;
 		public List<XqContext> queryList = new ArrayList<XqContext>();
-		public List<TerminalNode> ID() { return getTokens(XQueryParser.ID); }
-		public TerminalNode ID(int i) {
-			return getToken(XQueryParser.ID, i);
+		public List<TerminalNode> VAR() { return getTokens(XQueryParser.VAR); }
+		public TerminalNode VAR(int i) {
+			return getToken(XQueryParser.VAR, i);
 		}
 		public List<XqContext> xq() {
 			return getRuleContexts(XqContext.class);
@@ -651,8 +651,8 @@ public class XQueryParser extends Parser {
 			setState(86);
 			match(T__13);
 			setState(87);
-			((LetVarDefContext)_localctx).ID = match(ID);
-			((LetVarDefContext)_localctx).varList.add(((LetVarDefContext)_localctx).ID);
+			((LetVarDefContext)_localctx).VAR = match(VAR);
+			((LetVarDefContext)_localctx).varList.add(((LetVarDefContext)_localctx).VAR);
 			setState(88);
 			match(T__14);
 			setState(89);
@@ -667,8 +667,8 @@ public class XQueryParser extends Parser {
 				setState(90);
 				match(T__3);
 				setState(91);
-				((LetVarDefContext)_localctx).ID = match(ID);
-				((LetVarDefContext)_localctx).varList.add(((LetVarDefContext)_localctx).ID);
+				((LetVarDefContext)_localctx).VAR = match(VAR);
+				((LetVarDefContext)_localctx).varList.add(((LetVarDefContext)_localctx).VAR);
 				setState(92);
 				match(T__14);
 				setState(93);
@@ -813,14 +813,14 @@ public class XQueryParser extends Parser {
 		}
 	}
 	public static class CondVarCheckContext extends CondContext {
-		public Token ID;
+		public Token VAR;
 		public List<Token> varList = new ArrayList<Token>();
 		public XqContext xq;
 		public List<XqContext> queryList = new ArrayList<XqContext>();
 		public CondContext condition;
-		public List<TerminalNode> ID() { return getTokens(XQueryParser.ID); }
-		public TerminalNode ID(int i) {
-			return getToken(XQueryParser.ID, i);
+		public List<TerminalNode> VAR() { return getTokens(XQueryParser.VAR); }
+		public TerminalNode VAR(int i) {
+			return getToken(XQueryParser.VAR, i);
 		}
 		public List<XqContext> xq() {
 			return getRuleContexts(XqContext.class);
@@ -1012,8 +1012,8 @@ public class XQueryParser extends Parser {
 				setState(119);
 				match(T__22);
 				setState(120);
-				((CondVarCheckContext)_localctx).ID = match(ID);
-				((CondVarCheckContext)_localctx).varList.add(((CondVarCheckContext)_localctx).ID);
+				((CondVarCheckContext)_localctx).VAR = match(VAR);
+				((CondVarCheckContext)_localctx).varList.add(((CondVarCheckContext)_localctx).VAR);
 				setState(121);
 				match(T__12);
 				setState(122);
@@ -1028,8 +1028,8 @@ public class XQueryParser extends Parser {
 					setState(123);
 					match(T__3);
 					setState(124);
-					((CondVarCheckContext)_localctx).ID = match(ID);
-					((CondVarCheckContext)_localctx).varList.add(((CondVarCheckContext)_localctx).ID);
+					((CondVarCheckContext)_localctx).VAR = match(VAR);
+					((CondVarCheckContext)_localctx).varList.add(((CondVarCheckContext)_localctx).VAR);
 					setState(125);
 					match(T__12);
 					setState(126);
@@ -1998,7 +1998,7 @@ public class XQueryParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3+\u010c\4\2\t\2\4"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3,\u010c\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\3\2\3\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3"+
 		"\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\5\3\61\n\3\3\3\5\3\64\n\3\3\3\3"+
@@ -2020,7 +2020,7 @@ public class XQueryParser extends Parser {
 		"\26\2\4\3\2\24\25\3\2\26\27\u0129\2\30\3\2\2\2\4;\3\2\2\2\6K\3\2\2\2\b"+
 		"X\3\2\2\2\ne\3\2\2\2\fh\3\2\2\2\16\u008f\3\2\2\2\20\u009c\3\2\2\2\22\u00cb"+
 		"\3\2\2\2\24\u00d9\3\2\2\2\26\u00fe\3\2\2\2\30\31\5\4\3\2\31\3\3\2\2\2"+
-		"\32\33\b\3\1\2\33<\7(\2\2\34\35\7\3\2\2\35\36\7*\2\2\36<\7\3\2\2\37<\5"+
+		"\32\33\b\3\1\2\33<\7+\2\2\34\35\7\3\2\2\35\36\7*\2\2\36<\7\3\2\2\37<\5"+
 		"\22\n\2 !\7\4\2\2!\"\5\4\3\2\"#\7\5\2\2#<\3\2\2\2$%\7\t\2\2%&\7(\2\2&"+
 		"\'\7\n\2\2\'(\7\13\2\2()\5\4\3\2)*\7\f\2\2*+\7\r\2\2+,\7(\2\2,-\7\n\2"+
 		"\2-<\3\2\2\2.\60\5\6\4\2/\61\5\b\5\2\60/\3\2\2\2\60\61\3\2\2\2\61\63\3"+
@@ -2030,15 +2030,15 @@ public class XQueryParser extends Parser {
 		";:\3\2\2\2<H\3\2\2\2=>\f\t\2\2>?\7\6\2\2?G\5\4\3\n@A\f\b\2\2AB\7\7\2\2"+
 		"BG\5\24\13\2CD\f\7\2\2DE\7\b\2\2EG\5\24\13\2F=\3\2\2\2F@\3\2\2\2FC\3\2"+
 		"\2\2GJ\3\2\2\2HF\3\2\2\2HI\3\2\2\2I\5\3\2\2\2JH\3\2\2\2KL\7\16\2\2LM\7"+
-		"(\2\2MN\7\17\2\2NU\5\4\3\2OP\7\6\2\2PQ\7(\2\2QR\7\17\2\2RT\5\4\3\2SO\3"+
+		"+\2\2MN\7\17\2\2NU\5\4\3\2OP\7\6\2\2PQ\7+\2\2QR\7\17\2\2RT\5\4\3\2SO\3"+
 		"\2\2\2TW\3\2\2\2US\3\2\2\2UV\3\2\2\2V\7\3\2\2\2WU\3\2\2\2XY\7\20\2\2Y"+
-		"Z\7(\2\2Z[\7\21\2\2[b\5\4\3\2\\]\7\6\2\2]^\7(\2\2^_\7\21\2\2_a\5\4\3\2"+
+		"Z\7+\2\2Z[\7\21\2\2[b\5\4\3\2\\]\7\6\2\2]^\7+\2\2^_\7\21\2\2_a\5\4\3\2"+
 		"`\\\3\2\2\2ad\3\2\2\2b`\3\2\2\2bc\3\2\2\2c\t\3\2\2\2db\3\2\2\2ef\7\22"+
 		"\2\2fg\5\16\b\2g\13\3\2\2\2hi\7\23\2\2ij\5\4\3\2j\r\3\2\2\2kl\b\b\1\2"+
 		"lm\5\4\3\2mn\t\2\2\2no\5\4\3\2o\u0090\3\2\2\2pq\5\4\3\2qr\t\3\2\2rs\5"+
 		"\4\3\2s\u0090\3\2\2\2tu\7\30\2\2uv\7\4\2\2vw\5\4\3\2wx\7\5\2\2x\u0090"+
-		"\3\2\2\2yz\7\31\2\2z{\7(\2\2{|\7\17\2\2|\u0083\5\4\3\2}~\7\6\2\2~\177"+
-		"\7(\2\2\177\u0080\7\17\2\2\u0080\u0082\5\4\3\2\u0081}\3\2\2\2\u0082\u0085"+
+		"\3\2\2\2yz\7\31\2\2z{\7+\2\2{|\7\17\2\2|\u0083\5\4\3\2}~\7\6\2\2~\177"+
+		"\7+\2\2\177\u0080\7\17\2\2\u0080\u0082\5\4\3\2\u0081}\3\2\2\2\u0082\u0085"+
 		"\3\2\2\2\u0083\u0081\3\2\2\2\u0083\u0084\3\2\2\2\u0084\u0086\3\2\2\2\u0085"+
 		"\u0083\3\2\2\2\u0086\u0087\7\32\2\2\u0087\u0088\5\16\b\7\u0088\u0090\3"+
 		"\2\2\2\u0089\u008a\7\4\2\2\u008a\u008b\5\16\b\2\u008b\u008c\7\5\2\2\u008c"+

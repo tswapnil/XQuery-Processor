@@ -297,8 +297,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			XQueryResult loopResult = visit(ctx.loop);
 			while (loopResult != null && loopResult.getType() == XQueryResultType.BOOLEAN && loopResult.isTrue()) {
 				
-				System.out.println("x=" + currentContext.getVariableValue("x").getTextContent());
-				System.out.println("y=" + currentContext.getVariableValue("y").getTextContent());
+				System.out.println("$x=" + currentContext.getVariableValue("$x").getTextContent());
+				System.out.println("$y=" + currentContext.getVariableValue("$y").getTextContent());
 
 				if (ctx.declaration != null) {
 					visit(ctx.declaration);

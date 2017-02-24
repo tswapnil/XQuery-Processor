@@ -8,7 +8,7 @@ package edu.ucsd.cse.xprocessor.parser;
 start : xq
 	;
 	
-xq : var=ID																											#xqVar
+xq : var=VAR																											#xqVar
 	| '"' strConst=STRING '"'																						#xqStrConstDef
 	| ap																											#xqAp
 	| '(' query=xq ')'																								#xqParenExpr
@@ -21,10 +21,10 @@ xq : var=ID																											#xqVar
 	| join=joinClause																								#xqJoinExpr
 	;
 	
-forClause : 'for' varList+=ID 'in' queryList+=xq (',' varList+=ID 'in' queryList+=xq)*								#forVarIter
+forClause : 'for' varList+=VAR 'in' queryList+=xq (',' varList+=VAR 'in' queryList+=xq)*								#forVarIter
 	;
 	
-letClause : 'let' varList+=ID ':=' queryList+=xq (',' varList+=ID ':=' queryList+=xq)*								#letVarDef
+letClause : 'let' varList+=VAR ':=' queryList+=xq (',' varList+=VAR ':=' queryList+=xq)*								#letVarDef
 	;
 	
 whereClause : 'where' condition=cond																				#whereCondExpr
@@ -36,7 +36,7 @@ returnClause : 'return' query=xq																					#returnQuery
 cond : leftQuery=xq ('='|'eq') rightQuery=xq																		#condEqualVal
 	| leftQuery=xq ('=='|'is') rightQuery=xq																		#condEqualId
 	| 'empty' '(' query=xq ')'																						#condEmpty
-	| 'some' varList+=ID 'in' queryList+=xq (',' varList+=ID 'in' queryList+=xq)* 'satisfies' condition=cond		#condVarCheck
+	| 'some' varList+=VAR 'in' queryList+=xq (',' varList+=VAR 'in' queryList+=xq)* 'satisfies' condition=cond		#condVarCheck
 	| '(' condition=cond ')'																						#condParenExpr
 	| leftCondition=cond 'and' rightCondition=cond																	#condAndExpr
 	| leftCondition=cond 'or' rightCondition=cond																	#condOrExpr
@@ -82,6 +82,9 @@ FILE : CHARS+
     ;
     
 STRING : ALNUM+
+	;
+
+VAR : '$' ALPHA ALNUM*
 	;
 
 fragment
