@@ -297,8 +297,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			XQueryResult loopResult = visit(ctx.loop);
 			while (loopResult != null && loopResult.getType() == XQueryResultType.BOOLEAN && loopResult.isTrue()) {
 				
-				System.out.println("x=" + currentContext.getVariableValue("x").getTextContent());
-				System.out.println("y=" + currentContext.getVariableValue("y").getTextContent());
+				//System.out.println("x=" + currentContext.getVariableValue("x").getTextContent());
+				//System.out.println("y=" + currentContext.getVariableValue("y").getTextContent());
 
 				if (ctx.declaration != null) {
 					visit(ctx.declaration);
@@ -334,7 +334,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 		return result;
 	}
-
+  
 	/**
 	 * {@inheritDoc}
 	 */
@@ -550,7 +550,29 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitCondEqualVal(XQueryParser.CondEqualValContext ctx) {
 		// TODO: to be completed
-		return visitChildren(ctx);
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		result.setTruth(false);
+		
+		XQueryResult xq1Result = visit(ctx.leftQuery);
+		
+		XQueryResult xq2Result = visit(ctx.rightQuery);
+		
+		NodeListImpl nodesLeft = xq1Result.getNodes();
+		NodeListImpl nodesRight = xq2Result.getNodes();
+		if (nodesLeft == null || nodesRight == null) {
+			return result;
+		}
+		for (int i = 0; i < nodesLeft.getLength(); i++) {
+			for (int j = 0; j < nodesRight.getLength(); j++) {
+				if (xEqualy(nodesLeft.item(i), nodesRight.item(j))) {
+					result.setTruth(true);
+					break;
+				}
+			}
+		}
+
+		return result;
+	
 	}
 
 	/**
