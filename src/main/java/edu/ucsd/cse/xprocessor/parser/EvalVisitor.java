@@ -128,7 +128,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqContTagExpr(XQueryParser.XqContTagExprContext ctx) {
-
+		System.out.println("Visit XqContTag " + ctx.openTagName.getText());
+		System.out.flush();
 		// make sure open and closing tag names match
 		if (!ctx.openTagName.getText().equals(ctx.closeTagName.getText())) {
 			throw new RuntimeException(
@@ -283,7 +284,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
 		System.out.println("XqForExpr visited");
-		
+
 		XQueryResultType resultType = XQueryResultType.NODES;
 		NodeListImpl nodes = new NodeListImpl();
 
@@ -296,9 +297,11 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			// (like hasNext() in an iterator).
 			XQueryResult loopResult = visit(ctx.loop);
 			while (loopResult != null && loopResult.getType() == XQueryResultType.BOOLEAN && loopResult.isTrue()) {
-				
-				System.out.println("$x=" + currentContext.getVariableValue("$x").getTextContent());
-				System.out.println("$y=" + currentContext.getVariableValue("$y").getTextContent());
+
+				// System.out.println("$x=" +
+				// currentContext.getVariableValue("$x").getTextContent());
+				// System.out.println("$y=" +
+				// currentContext.getVariableValue("$y").getTextContent());
 
 				if (ctx.declaration != null) {
 					visit(ctx.declaration);
@@ -370,7 +373,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitForVarIter(XQueryParser.ForVarIterContext ctx) {
 		System.out.println("XqForVarIter visited");
-		
+
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
@@ -418,7 +421,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 							currentContext = currentContext.setVariableValue(vName, subQueryResult);
 						}
 
-						// exit while loop as all variables are now ready for next iteration
+						// exit while loop as all variables are now ready for
+						// next iteration
 						break;
 					}
 				}
@@ -574,8 +578,28 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualId(XQueryParser.CondEqualIdContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+		
+		if (currentContext != null) {
+			XQueryResult leftQuaryResult = visit(ctx.leftQuery);
+			XQueryResult rightQueryResult = visit(ctx.rightQuery);
+			NodeListImpl nodesLeft = leftQuaryResult.getNodes();
+			NodeListImpl nodesRight = rightQueryResult.getNodes();
+			if (nodesLeft == null || nodesRight == null) {
+				return result;
+			}
+			for (int i = 0; i < nodesLeft.getLength(); i++) {
+				for (int j = 0; j < nodesRight.getLength(); j++) {
+					if (xIsy(nodesLeft.item(i), nodesRight.item(j))) {
+						result.setTruth(true);
+						break;
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 
 	/**

@@ -81,7 +81,7 @@ ID : ALPHA ALNUM*
 FILE : CHARS+
     ;
     
-STRING : ALNUM+
+STRING : ALNUM+?
 	;
 
 VAR : '$' ALPHA ALNUM*
