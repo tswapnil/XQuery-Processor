@@ -346,7 +346,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				// we have exited the outer most for so invalidate iteration
 				// count
 				currentForIteration = -1;
-				//e.printStackTrace();
+				// e.printStackTrace();
 			}
 		} else {
 			throw new NullPointerException("Variable context is null.");
@@ -531,13 +531,134 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		return result;
 	}
 
+	private XQueryResult visitCondVarIter(XQueryParser.CondVarCheckContext ctx) {
+		System.out.println("CondVarIter visited");
+
+		if (currentContext != null) {
+			if (ctx.varList.size() != ctx.queryList.size()) {
+				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
+			}
+
+			boolean firstIteration = false;
+
+			if (currentForIteration == 0) {
+				System.out.println("First iteration");
+				firstIteration = true;
+				for (int i = 0; i < ctx.varList.size(); i++) {
+					String varName = ctx.varList.get(i).getText();
+					XQueryResult subQueryResult = visit(ctx.queryList.get(i));
+					currentContext = currentContext.setVariableValue(varName, subQueryResult);
+				}
+			}
+
+			boolean iterationsLeft = true;
+
+			if (firstIteration) {
+				for (int i = 0; i < ctx.varList.size(); i++) {
+					String varName = ctx.varList.get(i).getText();
+					// check if none of the variables is running on an empty
+					// from the beginning
+					// else there is no point iterating
+					if (currentContext.getVariableValue(varName) == null) {
+						iterationsLeft = false;
+					}
+				}
+			} else {
+				int varNum = ctx.varList.size() - 1; // start from last variable
+														// (i.e. inner most)
+				boolean allVariablesExhausted = true;
+				while (varNum >= 0) { // condition here
+					String varName = ctx.varList.get(varNum).getText();
+					if (currentContext.incrementVariableIterator(varName) == false) {
+						varNum--;
+					} else {
+						allVariablesExhausted = false;
+
+						// reset/re-evaluate all variables (already exhausted)
+						// to the right of this variable as their context has
+						// changed.
+						for (int i = varNum + 1; i < ctx.varList.size(); i++) {
+							String vName = ctx.varList.get(i).getText();
+							XQueryResult subQueryResult = visit(ctx.queryList.get(i));
+							currentContext = currentContext.setVariableValue(vName, subQueryResult);
+						}
+
+						// exit while loop as all variables are now ready for
+						// next iteration
+						break;
+					}
+				}
+
+				if (allVariablesExhausted) {
+					iterationsLeft = false;
+				}
+			}
+
+			XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+			result.setTruth(iterationsLeft);
+			return result;
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public XQueryResult visitCondVarCheck(XQueryParser.CondVarCheckContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
+
+		if (currentContext != null) {
+			// push current context to the stack as for loop scope begins
+			contextStack.push(currentContext);
+
+			if (currentForIteration > -1) {
+				forStack.push(currentForIteration);
+			}
+			currentForIteration = 0;
+			
+			boolean conditionSatisfied = false;
+
+			// forClause visit must update context with new variable values and
+			// return a boolean saying if there are more iterations remaining
+			// (like hasNext() in an iterator).
+			XQueryResult iterResult = visitCondVarIter(ctx);
+			while (iterResult != null && iterResult.getType() == XQueryResultType.BOOLEAN && iterResult.isTrue()) {
+				XQueryResult conditionResult = visit(ctx.condition);
+				if (conditionResult.getType() == XQueryResultType.BOOLEAN) {
+					conditionSatisfied = conditionResult.isTrue();
+				}
+
+				if(conditionSatisfied) {
+					break;
+				}
+				
+				// Increment iteration count
+				currentForIteration++;
+
+				iterResult = visitCondVarIter(ctx);
+			}
+
+			// restore the context from the stack as for loop scope has ended
+			currentContext = contextStack.pop();
+
+			// restore iteration count for any previous for statement
+			try {
+				currentForIteration = forStack.pop().intValue();
+			} catch (EmptyStackException e) {
+				// we have exited the outer most for so invalidate iteration
+				// count
+				currentForIteration = -1;
+				// e.printStackTrace();
+			}
+			
+			result.setTruth(conditionSatisfied);
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
+
+		return result;
 	}
 
 	/**
