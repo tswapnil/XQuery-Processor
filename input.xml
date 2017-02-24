@@ -9,4 +9,7 @@
     	<carname type="military">CRV 404</carname>
     	<carname type="military">Cherokee 505</carname>
     </suv>
+    <sedan>
+        <carname type="hybrid">PriusPrime 707</carname>
+    </sedan>
 </cars>

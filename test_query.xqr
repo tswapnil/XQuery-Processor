@@ -1,2 +1,3 @@
-let $x := " abc "
-	return $x
+let $x := <carname> { Prius Prime 606 } </carname>
+for $x in doc("input.xml")/supercars/carname , $y in doc("input.xml")/suv/carname
+	return <record> { $x, $y } </record>

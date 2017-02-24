@@ -2,6 +2,9 @@ package edu.ucsd.cse.xprocessor.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.EmptyStackException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Stack;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -34,6 +37,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	private Stack<Node> pathStack;
 	private Node currentNode;
 	private XQueryContext currentContext;
+	private Stack<Integer> forStack;
+	private int currentForIteration;
 
 	public EvalVisitor() {
 		super();
@@ -42,6 +47,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		this.pathStack = new Stack<Node>();
 		this.currentNode = null;
 		this.currentContext = new XQueryContext();
+		this.forStack = new Stack<Integer>();
+		this.currentForIteration = -1;
 	}
 
 	/**
@@ -292,6 +299,11 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			// push current context to the stack as for loop scope begins
 			contextStack.push(currentContext);
 
+			if (currentForIteration > -1) {
+				forStack.push(currentForIteration);
+			}
+			currentForIteration = 0;
+
 			// forClause visit must update context with new variable values and
 			// return a boolean saying if there are more iterations remaining
 			// (like hasNext() in an iterator).
@@ -318,11 +330,24 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 					resultType = returnResult.getType();
 				}
 
+				// Increment iteration count
+				currentForIteration++;
+
 				loopResult = visit(ctx.loop);
 			}
 
 			// restore the context from the stack as for loop scope has ended
 			currentContext = contextStack.pop();
+
+			// restore iteration count for any previous for statement
+			try {
+				currentForIteration = forStack.pop().intValue();
+			} catch (EmptyStackException e) {
+				// we have exited the outer most for so invalidate iteration
+				// count
+				currentForIteration = -1;
+				//e.printStackTrace();
+			}
 		} else {
 			throw new NullPointerException("Variable context is null.");
 		}
@@ -332,7 +357,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 		return result;
 	}
-  
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -375,10 +400,12 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			}
 
 			boolean firstIteration = false;
-			for (int i = 0; i < ctx.varList.size(); i++) {
-				String varName = ctx.varList.get(i).getText();
-				if (!currentContext.hasVariable(varName)) {
-					firstIteration = true;
+
+			if (currentForIteration == 0) {
+				System.out.println("First iteration");
+				firstIteration = true;
+				for (int i = 0; i < ctx.varList.size(); i++) {
+					String varName = ctx.varList.get(i).getText();
 					XQueryResult subQueryResult = visit(ctx.queryList.get(i));
 					currentContext = currentContext.setVariableValue(varName, subQueryResult);
 				}
@@ -551,11 +578,11 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		// TODO: to be completed
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
-		
+
 		XQueryResult xq1Result = visit(ctx.leftQuery);
-		
+
 		XQueryResult xq2Result = visit(ctx.rightQuery);
-		
+
 		NodeListImpl nodesLeft = xq1Result.getNodes();
 		NodeListImpl nodesRight = xq2Result.getNodes();
 		if (nodesLeft == null || nodesRight == null) {
@@ -571,7 +598,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		}
 
 		return result;
-	
+
 	}
 
 	/**
@@ -595,9 +622,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualId(XQueryParser.CondEqualIdContext ctx) {
-		
+
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
-		
+
 		if (currentContext != null) {
 			XQueryResult leftQuaryResult = visit(ctx.leftQuery);
 			XQueryResult rightQueryResult = visit(ctx.rightQuery);
