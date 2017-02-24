@@ -48,6 +48,9 @@ public class XQueryContext implements Cloneable {
 		}
 	}
 
+	/**
+	 * Returns if a new variable value was updated or not.
+	 */
 	public boolean incrementVariableIterator(String name) {
 		boolean hasNext = false;
 		if (iterContextMap.containsKey(name)) {
@@ -65,6 +68,10 @@ public class XQueryContext implements Cloneable {
 			Iterator<Node> iterator = listContextMap.get(name).iterator();
 			iterContextMap.put(name, iterator);
 		}
+	}
+	
+	public boolean hasVariable(String name) {
+		return varContextMap.containsKey(name);
 	}
 
 	public Node getVariableValue(String name) {
@@ -85,11 +92,19 @@ public class XQueryContext implements Cloneable {
 		XQueryContext newContext = new XQueryContext(this);
 
 		if (value != null) {
+			newContext.varContextMap.put(name, null);
 			newContext.listContextMap.put(name, value.getNodes());
 			newContext.iterContextMap.put(name, value.getNodes().iterator());
+			incrementVariableIterator(name);
 		}
 
 		return newContext;
+	}
+	
+	public void unsetVariable(String name) {
+		varContextMap.remove(name);
+		listContextMap.remove(name);
+		iterContextMap.remove(name);
 	}
 
 }
