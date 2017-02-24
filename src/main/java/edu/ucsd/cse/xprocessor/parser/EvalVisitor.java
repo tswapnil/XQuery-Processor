@@ -106,9 +106,20 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqVar(XQueryParser.XqVarContext ctx) {
+		XQueryResult result = null;
 		if (currentContext != null) {
 			String varName = ctx.var.getText();
-			return currentContext.getVariableValue(varName);
+			Object value = currentContext.getVariableValue(varName);
+			if (value instanceof Node) {
+				result = new XQueryResult(XQueryResultType.NODES);
+				NodeListImpl nodes = new NodeListImpl();
+				nodes.add((Node) value);
+			} else {
+				result = new XQueryResult(XQueryResultType.BOOLEAN);
+				result.setTruth(((Boolean) value).booleanValue());
+			}
+			
+			return result;
 		} else {
 			throw new NullPointerException("Variable context is null");
 		}
@@ -122,7 +133,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 		// make sure open and closing tag names match
 		if (!ctx.openTagName.getText().equals(ctx.closeTagName.getText())) {
-			return null;
+			throw new RuntimeException(
+					"Malformed query! Opening and closing tag-name for the container node do not match.");
 		}
 
 		String tagName = ctx.openTagName.getText();
@@ -272,7 +284,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
-		XQueryResult result = null;
+		XQueryResultType resultType = XQueryResultType.NODES;
+		NodeListImpl nodes = new NodeListImpl();
+
 		if (currentContext != null) {
 			// push current context to the stack as for loop scope begins
 			contextStack.push(currentContext);
@@ -283,24 +297,39 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			XQueryResult loopResult = visit(ctx.loop);
 			while (loopResult != null && loopResult.getType() == XQueryResultType.BOOLEAN && loopResult.isTrue()) {
 
-				// TODO: visit letClause if any
+				if (ctx.declaration != null) {
+					visit(ctx.declaration);
+				}
 
-				// TODO: check whereClause if any
+				boolean conditionSatisfied = false;
+				if (ctx.condition != null) {
+					XQueryResult conditionResult = visit(ctx.condition);
+					if (conditionResult.getType() == XQueryResultType.BOOLEAN) {
+						conditionSatisfied = conditionResult.isTrue();
+					}
+				}
 
-				// TODO: append result of returnClause to final 'result'.
 				// (Return in XQuery is like 'emit' in map-reduce and not
-				// regular return stmt)
+				// regular return stmt i.e. combine returned results)
+				if (conditionSatisfied) {
+					XQueryResult returnResult = visit(ctx.output);
+					nodes.addAll(returnResult.getNodes());
+					resultType = returnResult.getType();
+				}
 
 				loopResult = visit(ctx.loop);
 			}
 
 			// restore the context from the stack as for loop scope has ended
 			currentContext = contextStack.pop();
-
-			return result;
 		} else {
 			throw new NullPointerException("Variable context is null.");
 		}
+
+		XQueryResult result = new XQueryResult(resultType);
+		result.setNodes(nodes);
+
+		return result;
 	}
 
 	/**
@@ -337,8 +366,22 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitForVarIter(XQueryParser.ForVarIterContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		if (currentContext != null) {
+			if (ctx.varList.size() != ctx.queryList.size()) {
+				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
+			}
+
+			for (int i = 0; i < ctx.varList.size(); i++) {
+				String varName = ctx.varList.get(i).getText();
+				XQueryResult subQueryResult = visit(ctx.queryList.get(i));
+				String resultIterName = "_" + varName + "_iter";
+				currentContext = currentContext.setVariableValue(resultIterName, subQueryResult);
+			}
+
+			return null;
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
 	}
 
 	/**
@@ -368,8 +411,13 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitWhereCondExpr(XQueryParser.WhereCondExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		if (currentContext != null) {
+			XQueryResult conditionResult = visit(ctx.condition);
+
+			return conditionResult;
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
 	}
 
 	/**
@@ -377,8 +425,13 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitReturnQuery(XQueryParser.ReturnQueryContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		if (currentContext != null) {
+			XQueryResult queryResult = visit(ctx.query);
+
+			return queryResult;
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
 	}
 
 	/**
