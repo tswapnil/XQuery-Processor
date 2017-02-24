@@ -88,6 +88,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqAp(XQueryParser.XqApContext ctx) {
+		System.out.println("XqAp visited");
 		// no change required
 		return visitChildren(ctx);
 	}
@@ -281,6 +282,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
+		System.out.println("XqForExpr visited");
+		
 		XQueryResultType resultType = XQueryResultType.NODES;
 		NodeListImpl nodes = new NodeListImpl();
 
@@ -293,12 +296,15 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			// (like hasNext() in an iterator).
 			XQueryResult loopResult = visit(ctx.loop);
 			while (loopResult != null && loopResult.getType() == XQueryResultType.BOOLEAN && loopResult.isTrue()) {
+				
+				System.out.println("x=" + currentContext.getVariableValue("x").getTextContent());
+				System.out.println("y=" + currentContext.getVariableValue("y").getTextContent());
 
 				if (ctx.declaration != null) {
 					visit(ctx.declaration);
 				}
 
-				boolean conditionSatisfied = false;
+				boolean conditionSatisfied = true;
 				if (ctx.condition != null) {
 					XQueryResult conditionResult = visit(ctx.condition);
 					if (conditionResult.getType() == XQueryResultType.BOOLEAN) {
@@ -363,6 +369,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitForVarIter(XQueryParser.ForVarIterContext ctx) {
+		System.out.println("XqForVarIter visited");
+		
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
@@ -404,13 +412,10 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 						// reset/re-evaluate all variables (already exhausted)
 						// to the right of this variable as their context has
 						// changed.
-						for (int i = varNum; i < ctx.varList.size(); i++) {
+						for (int i = varNum + 1; i < ctx.varList.size(); i++) {
 							String vName = ctx.varList.get(i).getText();
-							if (!currentContext.hasVariable(vName)) {
-								firstIteration = true;
-								XQueryResult subQueryResult = visit(ctx.queryList.get(i));
-								currentContext = currentContext.setVariableValue(vName, subQueryResult);
-							}
+							XQueryResult subQueryResult = visit(ctx.queryList.get(i));
+							currentContext = currentContext.setVariableValue(vName, subQueryResult);
 						}
 
 						// exit while loop as all variables are now ready for next iteration

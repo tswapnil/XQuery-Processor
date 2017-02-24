@@ -1,6 +1,8 @@
 package edu.ucsd.cse.xprocessor;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -40,12 +42,22 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
  */
 public class App {
 
+	private static String queryFileName = "test_query.xqr";
 	private static String outputFileName = "result.xml";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
 		//String query = "doc(\"input.xml\")/supercars/carname/";
-		String query = "doc(\"j_caesar.xml\")//SPEECH/SPEAKER[not(./text()==./*/text())]/../../../../TITLE";
+		//String query = "doc(\"j_caesar.xml\")//SPEECH/SPEAKER[not(./text()==./*/text())]/../../../../TITLE";
+		String query = "";
+		
+		BufferedReader reader = new BufferedReader(new FileReader(new File(queryFileName)));
+		while(reader.ready()) {
+			query += reader.readLine();
+		}
+		reader.close();
+		
+		//System.out.println(query);
 
 		ANTLRInputStream input = new ANTLRInputStream(query);
 		XQueryLexer lexer = new XQueryLexer(input);
@@ -57,22 +69,23 @@ public class App {
 		ParseTree tree = parser.start();
 		EvalVisitor visitor = new EvalVisitor();
 		XQueryResult result = visitor.visit(tree);
-		NodeListImpl nodes = result.getNodes();
-		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
 		
-        if(nodes!=null){
-        	for(int i=0;i<nodes.getLength();i++){
-              map.put(nodes.item(i), i);		
-        	}
-        	NodeListImpl newNodes = new NodeListImpl();
-        	Iterator it = map.entrySet().iterator();
-        	while(it.hasNext()){
-        		Map.Entry pair = (Map.Entry) it.next();
-        	    Node temp = (Node) pair.getKey();
-        	    newNodes.add(temp);
-        	}
-        	result.setNodes(newNodes);
-        }
+//		NodeListImpl nodes = result.getNodes();
+//		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
+//		
+//        if(nodes!=null){
+//        	for(int i=0;i<nodes.getLength();i++){
+//              map.put(nodes.item(i), i);		
+//        	}
+//        	NodeListImpl newNodes = new NodeListImpl();
+//        	Iterator it = map.entrySet().iterator();
+//        	while(it.hasNext()){
+//        		Map.Entry pair = (Map.Entry) it.next();
+//        	    Node temp = (Node) pair.getKey();
+//        	    newNodes.add(temp);
+//        	}
+//        	result.setNodes(newNodes);
+//        }
         
         
 		generateResultXMLFile(result);

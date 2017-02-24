@@ -1,0 +1,2 @@
+for x in doc("input.xml")/supercars/carname , y in doc("input.xml")/suv/carname
+	return <record> { x, y } </record>

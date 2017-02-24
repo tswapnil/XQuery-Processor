@@ -95,7 +95,7 @@ public class XQueryContext implements Cloneable {
 			newContext.varContextMap.put(name, null);
 			newContext.listContextMap.put(name, value.getNodes());
 			newContext.iterContextMap.put(name, value.getNodes().iterator());
-			incrementVariableIterator(name);
+			newContext.incrementVariableIterator(name);
 		}
 
 		return newContext;
