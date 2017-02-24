@@ -222,7 +222,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqDblSlashExpr(XQueryParser.XqDblSlashExprContext ctx) {
-		
+
 		XQueryResultType resultType = XQueryResultType.NODES;
 
 		NodeListImpl nodes = new NodeListImpl();
@@ -234,7 +234,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				pathStack.push(queryResult.getNodes().item(i));
 			}
 		}
-		
+
 		while (!pathStack.isEmpty()) {
 			Node temp = pathStack.pop();
 			if (temp != null) {
@@ -272,8 +272,35 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
-		// TODO: to be completed
-		return visitChildren(ctx);
+		XQueryResult result = null;
+		if (currentContext != null) {
+			// push current context to the stack as for loop scope begins
+			contextStack.push(currentContext);
+
+			// forClause visit must update context with new variable values and
+			// return a boolean saying if there are more iterations remaining
+			// (like hasNext() in an iterator).
+			XQueryResult loopResult = visit(ctx.loop);
+			while (loopResult != null && loopResult.getType() == XQueryResultType.BOOLEAN && loopResult.isTrue()) {
+
+				// TODO: visit letClause if any
+
+				// TODO: check whereClause if any
+
+				// TODO: append result of returnClause to final 'result'.
+				// (Return in XQuery is like 'emit' in map-reduce and not
+				// regular return stmt)
+
+				loopResult = visit(ctx.loop);
+			}
+
+			// restore the context from the stack as for loop scope has ended
+			currentContext = contextStack.pop();
+
+			return result;
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
 	}
 
 	/**
@@ -323,13 +350,13 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
 			}
-			
+
 			for (int i = 0; i < ctx.varList.size(); i++) {
 				String varName = ctx.varList.get(i).getText();
 				XQueryResult subQueryResult = visit(ctx.queryList.get(i));
 				currentContext = currentContext.setVariableValue(varName, subQueryResult);
 			}
-			
+
 			return null;
 		} else {
 			throw new NullPointerException("Variable context is null.");

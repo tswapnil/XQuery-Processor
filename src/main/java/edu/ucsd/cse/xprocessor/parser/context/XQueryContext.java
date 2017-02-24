@@ -34,7 +34,7 @@ public class XQueryContext implements Cloneable {
 	}
 
 	/**
-	 * The method creates a new context with the variable set to new value.
+	 * The method creates a new context (deep copy) with the variable set to new value.
 	 * 
 	 * @param name
 	 *            variable name
