@@ -109,15 +109,12 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		XQueryResult result = null;
 		if (currentContext != null) {
 			String varName = ctx.var.getText();
-			Object value = currentContext.getVariableValue(varName);
-			if (value instanceof Node) {
-				result = new XQueryResult(XQueryResultType.NODES);
-				NodeListImpl nodes = new NodeListImpl();
-				nodes.add((Node) value);
-			} else {
-				result = new XQueryResult(XQueryResultType.BOOLEAN);
-				result.setTruth(((Boolean) value).booleanValue());
-			}
+			Node value = currentContext.getVariableValue(varName);
+
+			result = new XQueryResult(XQueryResultType.NODES);
+			NodeListImpl nodes = new NodeListImpl();
+			nodes.add(value);
+			result.setNodes(nodes);
 			
 			return result;
 		} else {

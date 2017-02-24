@@ -19,60 +19,61 @@ public class XQueryContext implements Cloneable {
 	/*
 	 * Map of variable Name and Value
 	 */
-	private HashMap<String, Object> varContextMap;
+	private HashMap<String, Node> varContextMap;
 	private HashMap<String, NodeListImpl> listContextMap;
 	private HashMap<String, Iterator<Node>> iterContextMap;
 
 	public XQueryContext() {
-		this.varContextMap = new HashMap<String, Object>();
+		this.varContextMap = new HashMap<String, Node>();
 		this.listContextMap = new HashMap<String, NodeListImpl>();
 		this.iterContextMap = new HashMap<String, Iterator<Node>>();
 	}
 
 	private XQueryContext(XQueryContext context) {
-		this.varContextMap = new HashMap<String, Object>();
+		this.varContextMap = new HashMap<String, Node>();
 		this.listContextMap = new HashMap<String, NodeListImpl>();
 		this.iterContextMap = new HashMap<String, Iterator<Node>>();
 		if (context != null) {
 			for (String key : context.varContextMap.keySet()) {
 				this.varContextMap.put(key, context.varContextMap.get(key));
 			}
-			
+
 			for (String key : context.listContextMap.keySet()) {
 				this.listContextMap.put(key, context.listContextMap.get(key));
 			}
-			
+
 			for (String key : context.iterContextMap.keySet()) {
 				this.iterContextMap.put(key, context.iterContextMap.get(key));
 			}
 		}
 	}
-	
+
 	public boolean incrementVariableIterator(String name) {
 		boolean hasNext = false;
-		if(iterContextMap.containsKey(name)) {
+		if (iterContextMap.containsKey(name)) {
 			hasNext = iterContextMap.get(name).hasNext();
-			if(hasNext){
+			if (hasNext) {
 				varContextMap.put(name, iterContextMap.get(name).next());
 			}
 		}
-		
+
 		return hasNext;
 	}
-	
+
 	public void resetVariableIterator(String name) {
-		if(listContextMap.containsKey(name)) {
+		if (listContextMap.containsKey(name)) {
 			Iterator<Node> iterator = listContextMap.get(name).iterator();
 			iterContextMap.put(name, iterator);
 		}
 	}
 
-	public Object getVariableValue(String name) {
+	public Node getVariableValue(String name) {
 		return varContextMap.get(name);
 	}
 
 	/**
-	 * The method creates a new context (deep copy) with the variable set to new value.
+	 * The method creates a new context (deep copy) with the variable set to new
+	 * value.
 	 * 
 	 * @param name
 	 *            variable name
@@ -82,16 +83,12 @@ public class XQueryContext implements Cloneable {
 	 */
 	public XQueryContext setVariableValue(String name, XQueryResult value) {
 		XQueryContext newContext = new XQueryContext(this);
-		
-		if(value != null) {
-			if(value.getType() == XQueryResultType.BOOLEAN) {
-				newContext.varContextMap.put(name, value.isTrue());
-			} else {
-				newContext.listContextMap.put(name, value.getNodes());
-				newContext.iterContextMap.put(name, value.getNodes().iterator());
-			}
+
+		if (value != null) {
+			newContext.listContextMap.put(name, value.getNodes());
+			newContext.iterContextMap.put(name, value.getNodes().iterator());
 		}
-		
+
 		return newContext;
 	}
 
