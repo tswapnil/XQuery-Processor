@@ -1,22 +1,22 @@
 grammar XQuery;
 
+
 @header {
 package edu.ucsd.cse.xprocessor.parser;
 }
-
 
 start : xq
 	;
 	
 xq : var=VAR																											#xqVar
-	| '"' strConst=STRING '"'																						#xqStrConstDef
+	| strConst=STRING																						#xqStrConstDef
 	| ap																											#xqAp
 	| '(' query=xq ')'																								#xqParenExpr
 	| leftQuery=xq ',' rightQuery=xq																				#xqConcatExpr
 	| query=xq '/' relPath=rp																						#xqSlashExpr
 	| query=xq '//' relPath=rp																						#xqDblSlashExpr
 	| '<' openTagName=ID '>' '{' query=xq '}' '</' closeTagName=ID '>'												#xqContTagExpr
-	| loop=forClause declaration=letClause? condition=whereClause? output=returnClause								#xqForExpr
+	| loop=forClause (declaration=letClause)* (condition=whereClause)* output=returnClause								#xqForExpr
 	| declaration=letClause query=xq																				#xqLetExpr
 	| join=joinClause																								#xqJoinExpr
 	;
@@ -80,9 +80,10 @@ ID : ALPHA ALNUM*
 
 FILE : CHARS+
     ;
-    
-STRING : ALNUM+?
+
+STRING : '"' ( '\\"' | ~('\n'|'\r') )*? '"'
 	;
+
 
 VAR : '$' ALPHA ALNUM*
 	;

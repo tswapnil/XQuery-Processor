@@ -42,7 +42,7 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
  */
 public class App {
 
-	private static String queryFileName = "test_query.xqr";
+	private static String queryFileName = "ml2_query7.xqr";
 	private static String outputFileName = "result.xml";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
@@ -53,7 +53,7 @@ public class App {
 		
 		BufferedReader reader = new BufferedReader(new FileReader(new File(queryFileName)));
 		while(reader.ready()) {
-			query += reader.readLine();
+			query += reader.readLine() + "\n";
 		}
 		reader.close();
 		

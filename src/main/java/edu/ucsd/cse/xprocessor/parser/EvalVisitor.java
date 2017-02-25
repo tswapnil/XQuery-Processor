@@ -3,8 +3,6 @@ package edu.ucsd.cse.xprocessor.parser;
 import java.io.File;
 import java.io.IOException;
 import java.util.EmptyStackException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Stack;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -95,7 +93,6 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqAp(XQueryParser.XqApContext ctx) {
-		System.out.println("XqAp visited");
 		// no change required
 		return visitChildren(ctx);
 	}
@@ -135,12 +132,12 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqContTagExpr(XQueryParser.XqContTagExprContext ctx) {
-		System.out.println("Visit XqContTag " + ctx.openTagName.getText());
-		System.out.flush();
+		
 		// make sure open and closing tag names match
 		if (!ctx.openTagName.getText().equals(ctx.closeTagName.getText())) {
 			throw new RuntimeException(
-					"Malformed query! Opening and closing tag-name for the container node do not match.");
+					"Malformed query! Opening and closing tag-name for the container node do not match. OpenTag: "
+							+ ctx.openTagName.getText() + ", CloseTag: " + ctx.closeTagName.getText());
 		}
 
 		String tagName = ctx.openTagName.getText();
@@ -173,6 +170,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitXqStrConstDef(XQueryParser.XqStrConstDefContext ctx) {
 		String strConst = ctx.strConst.getText();
+		strConst = strConst.substring(1, strConst.length() - 1);
 
 		NodeListImpl nodes = new NodeListImpl();
 		nodes.add(makeText(strConst));
@@ -290,7 +288,6 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
-		System.out.println("XqForExpr visited");
 
 		XQueryResultType resultType = XQueryResultType.NODES;
 		NodeListImpl nodes = new NodeListImpl();
@@ -392,7 +389,6 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitForVarIter(XQueryParser.ForVarIterContext ctx) {
-		System.out.println("XqForVarIter visited");
 
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
@@ -402,7 +398,6 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			boolean firstIteration = false;
 
 			if (currentForIteration == 0) {
-				System.out.println("First iteration");
 				firstIteration = true;
 				for (int i = 0; i < ctx.varList.size(); i++) {
 					String varName = ctx.varList.get(i).getText();
@@ -502,20 +497,6 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public XQueryResult visitReturnQuery(XQueryParser.ReturnQueryContext ctx) {
-		if (currentContext != null) {
-			XQueryResult queryResult = visit(ctx.query);
-
-			return queryResult;
-		} else {
-			throw new NullPointerException("Variable context is null.");
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public XQueryResult visitCondEmpty(XQueryParser.CondEmptyContext ctx) {
 		XQueryResult result = null;
 		XQueryResult queryResult = visit(ctx.query);
@@ -531,8 +512,21 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public XQueryResult visitReturnQuery(XQueryParser.ReturnQueryContext ctx) {
+		if (currentContext != null) {
+			XQueryResult queryResult = visit(ctx.query);
+
+			return queryResult;
+		} else {
+			throw new NullPointerException("Variable context is null.");
+		}
+	}
+
 	private XQueryResult visitCondVarIter(XQueryParser.CondVarCheckContext ctx) {
-		System.out.println("CondVarIter visited");
 
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
@@ -542,7 +536,6 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			boolean firstIteration = false;
 
 			if (currentForIteration == 0) {
-				System.out.println("First iteration");
 				firstIteration = true;
 				for (int i = 0; i < ctx.varList.size(); i++) {
 					String varName = ctx.varList.get(i).getText();
@@ -617,7 +610,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				forStack.push(currentForIteration);
 			}
 			currentForIteration = 0;
-			
+
 			boolean conditionSatisfied = false;
 
 			// forClause visit must update context with new variable values and
@@ -630,10 +623,10 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 					conditionSatisfied = conditionResult.isTrue();
 				}
 
-				if(conditionSatisfied) {
+				if (conditionSatisfied) {
 					break;
 				}
-				
+
 				// Increment iteration count
 				currentForIteration++;
 
@@ -652,7 +645,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				currentForIteration = -1;
 				// e.printStackTrace();
 			}
-			
+
 			result.setTruth(conditionSatisfied);
 		} else {
 			throw new NullPointerException("Variable context is null.");
@@ -696,7 +689,6 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualVal(XQueryParser.CondEqualValContext ctx) {
-		// TODO: to be completed
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
 
@@ -801,7 +793,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitApSlashFile(XQueryParser.ApSlashFileContext ctx) {
-		// System.out.println("visiting ApSlashFile");
+
 		File xmlFile = new File(ctx.docName.getText());
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
