@@ -80,12 +80,12 @@ public class App {
              map.put(nodes.item(i), i);		
        	}
        	NodeListImpl newNodes = new NodeListImpl();
-        	Iterator it = map.entrySet().iterator();
-      	while(it.hasNext()){
-        		Map.Entry pair = (Map.Entry) it.next();
-       	    Node temp = (Node) pair.getKey();
-        	    newNodes.add(temp);
-        	}
+       	Iterator it = map.entrySet().iterator();
+     	while(it.hasNext()){
+       		Map.Entry pair = (Map.Entry) it.next();
+      	    Node temp = (Node) pair.getKey();
+       	    newNodes.add(temp);
+       	}
         	result.setNodes(newNodes);
         }
         
