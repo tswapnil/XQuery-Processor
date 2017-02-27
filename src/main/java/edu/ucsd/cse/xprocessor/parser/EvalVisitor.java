@@ -380,7 +380,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		System.out.println("visiting XqSlashExpr");
 		NodeListImpl nodes = new NodeListImpl();
 		XQueryResult queryResult = visit(ctx.query);
-
+        System.out.println(ctx.query.getText());
 		XQueryResultType resultType = XQueryResultType.NODES;
 
 		if (queryResult.getNodes() != null && queryResult.getNodes().getLength() > 0) {
@@ -407,8 +407,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitForVarIter(XQueryParser.ForVarIterContext ctx) {
-		System.out.println("visiting ForVarIter");
+		
 		if (currentContext != null) {
+			System.out.println("visiting ForVarIter");
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
 			}
@@ -419,7 +420,10 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				firstIteration = true;
 				for (int i = 0; i < ctx.varList.size(); i++) {
 					String varName = ctx.varList.get(i).getText();
+					
 					XQueryResult subQueryResult = visit(ctx.queryList.get(i));
+					System.out.println("QueryList(i) = "+ctx.queryList.get(i).getText());
+					
 					currentContext = currentContext.setVariableValue(varName, subQueryResult);
 				}
 			}

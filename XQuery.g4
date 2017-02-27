@@ -1,10 +1,10 @@
 grammar XQuery;
 
-
+/* 
 @header {
 package edu.ucsd.cse.xprocessor.parser;
 }
-
+*/
 start : xq
 	;
 	
