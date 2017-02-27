@@ -54,6 +54,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 
 	private static Text makeText(String text) {
+		System.out.println("visiting makeText");
 		Text textNode = null;
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -68,6 +69,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	}
 
 	private static Element makeElement(String tagName, NodeListImpl nodes) {
+		System.out.println("visiting makeElement");
 		Element elementNode = null;
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -93,6 +95,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqAp(XQueryParser.XqApContext ctx) {
+		System.out.println("visiting XqAp");
 		// no change required
 		return visitChildren(ctx);
 	}
@@ -102,6 +105,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqJoinExpr(XQueryParser.XqJoinExprContext ctx) {
+		System.out.println("visiting XqJoinExpr");
 		// TODO: to be completed
 		return visitChildren(ctx);
 	}
@@ -111,6 +115,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqVar(XQueryParser.XqVarContext ctx) {
+		System.out.println("visiting XqVar");
 		XQueryResult result = null;
 		if (currentContext != null) {
 			String varName = ctx.var.getText();
@@ -132,7 +137,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqContTagExpr(XQueryParser.XqContTagExprContext ctx) {
-		
+		System.out.println("visiting XqContTagExpr");
 		// make sure open and closing tag names match
 		if (!ctx.openTagName.getText().equals(ctx.closeTagName.getText())) {
 			throw new RuntimeException(
@@ -160,6 +165,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqParenExpr(XQueryParser.XqParenExprContext ctx) {
+		System.out.println("visiting XqParenExpr");
 		// no further change required
 		return visit(ctx.query);
 	}
@@ -169,6 +175,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqStrConstDef(XQueryParser.XqStrConstDefContext ctx) {
+		System.out.println("visiting XqStrConstDef");
 		String strConst = ctx.strConst.getText();
 		strConst = strConst.substring(1, strConst.length() - 1);
 
@@ -191,8 +198,16 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			// letClause only updates the current context but returns null so
 			// ignoring return value
 			visit(ctx.declaration);
-
+            
+            
 			XQueryResult queryResult = visit(ctx.query);
+			if(queryResult == null){
+				XQueryResultType resultType = XQueryResultType.NODES;
+				NodeListImpl nodes = new NodeListImpl();
+
+				queryResult = new XQueryResult(resultType);
+				queryResult.setNodes(nodes);
+			}
 			return queryResult;
 		} else {
 			throw new NullPointerException("Variable context is null.");
@@ -204,6 +219,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqConcatExpr(XQueryParser.XqConcatExprContext ctx) {
+		System.out.println("visiting XqConcatExpr");
 		XQueryResult leftResult = visit(ctx.leftQuery);
 		XQueryResult rightResult = visit(ctx.rightQuery);
 
@@ -239,7 +255,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqDblSlashExpr(XQueryParser.XqDblSlashExprContext ctx) {
-
+		System.out.println("visiting XqDblSlashExpr");
 		XQueryResultType resultType = XQueryResultType.NODES;
 
 		NodeListImpl nodes = new NodeListImpl();
@@ -289,7 +305,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
-
+		System.out.println("visiting XqForExpr");
 		XQueryResultType resultType = XQueryResultType.NODES;
 		NodeListImpl nodes = new NodeListImpl();
 
@@ -361,6 +377,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqSlashExpr(XQueryParser.XqSlashExprContext ctx) {
+		System.out.println("visiting XqSlashExpr");
 		NodeListImpl nodes = new NodeListImpl();
 		XQueryResult queryResult = visit(ctx.query);
 
@@ -390,7 +407,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitForVarIter(XQueryParser.ForVarIterContext ctx) {
-
+		System.out.println("visiting ForVarIter");
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
@@ -463,6 +480,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitLetVarDef(XQueryParser.LetVarDefContext ctx) {
+		
 		System.out.println("visiting LetVarDef");
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
@@ -474,8 +492,13 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				XQueryResult subQueryResult = visit(ctx.queryList.get(i));
 				currentContext = currentContext.setVariableValue(varName, subQueryResult);
 			}
+			XQueryResultType resultType = XQueryResultType.NODES;
+			NodeListImpl nodes = new NodeListImpl();
 
-			return null;
+			XQueryResult result = new XQueryResult(resultType);
+			result.setNodes(nodes);
+		
+			return result;
 		} else {
 			throw new NullPointerException("Variable context is null.");
 		}
@@ -486,6 +509,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitWhereCondExpr(XQueryParser.WhereCondExprContext ctx) {
+		System.out.println("visiting where Cond");
 		if (currentContext != null) {
 			XQueryResult conditionResult = visit(ctx.condition);
 
@@ -500,6 +524,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEmpty(XQueryParser.CondEmptyContext ctx) {
+		System.out.println("visiting CondEmpty");
 		XQueryResult result = null;
 		XQueryResult queryResult = visit(ctx.query);
 		if (queryResult == null) {
@@ -519,6 +544,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitReturnQuery(XQueryParser.ReturnQueryContext ctx) {
+		System.out.println("visiting ReturnQuery");
 		if (currentContext != null) {
 			XQueryResult queryResult = visit(ctx.query);
 
@@ -529,7 +555,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	}
 
 	private XQueryResult visitCondVarIter(XQueryParser.CondVarCheckContext ctx) {
-
+		System.out.println("visiting CondVarIter");
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
@@ -602,6 +628,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondVarCheck(XQueryParser.CondVarCheckContext ctx) {
+		System.out.println("visiting CondVarCheck");
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 
 		if (currentContext != null) {
@@ -661,6 +688,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondOrExpr(XQueryParser.CondOrExprContext ctx) {
+		System.out.println("visiting CondorExpr");
 		XQueryResult result = null;
 		XQueryResult leftResult = visit(ctx.leftCondition);
 		XQueryResult rightResult = visit(ctx.rightCondition);
@@ -677,6 +705,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondParenExpr(XQueryParser.CondParenExprContext ctx) {
+		System.out.println("visiting CondParenExpr");
 		XQueryResult result = null;
 		XQueryResult conditionResult = visit(ctx.condition);
 		if (conditionResult != null && conditionResult.getType() == XQueryResultType.BOOLEAN) {
@@ -691,6 +720,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualVal(XQueryParser.CondEqualValContext ctx) {
+		System.out.println("visiting CondEqualVal");
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
 
@@ -721,6 +751,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondAndExpr(XQueryParser.CondAndExprContext ctx) {
+		System.out.println("visiting CondAndExpr");
 		XQueryResult result = null;
 		XQueryResult leftResult = visit(ctx.leftCondition);
 		XQueryResult rightResult = visit(ctx.rightCondition);
@@ -737,7 +768,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualId(XQueryParser.CondEqualIdContext ctx) {
-
+		System.out.println("visiting CondEqualId");
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 
 		if (currentContext != null) {
@@ -766,6 +797,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondNotExpr(XQueryParser.CondNotExprContext ctx) {
+		System.out.println("visiting CondNotExpr");
 		XQueryResult result = null;
 		XQueryResult conditionResult = visit(ctx.condition);
 		if (conditionResult != null && conditionResult.getType() == XQueryResultType.BOOLEAN) {
@@ -781,6 +813,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitJoinDef(XQueryParser.JoinDefContext ctx) {
+		System.out.println("visiting JoinDef");
 		// TODO: to be completed
 		return visitChildren(ctx);
 	}

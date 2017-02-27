@@ -69,7 +69,9 @@ public class App {
 		ParseTree tree = parser.start();
 		EvalVisitor visitor = new EvalVisitor();
 		XQueryResult result = visitor.visit(tree);
-		
+		if(result==null){
+			System.out.println("Result is null");
+		}
 		NodeListImpl nodes = result.getNodes();
 		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
 		
