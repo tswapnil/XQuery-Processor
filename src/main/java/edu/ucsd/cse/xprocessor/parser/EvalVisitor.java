@@ -1070,13 +1070,17 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitRpTagName(XQueryParser.RpTagNameContext ctx) {
-		// System.out.println("Visiting RpTagName " + ctx.tagName.getText());
+		 //System.out.println("Visiting RpTagName " + ctx.tagName.getText());
 		if (doc == null) {
 			return null;
 		}
 
 		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
 		NodeListImpl nodes = new NodeListImpl();
+		//System.out.println(currentNode.getNodeName());
+		if(currentNode.getNodeName().equals(ctx.tagName.getText())){
+			nodes.add(currentNode);
+		}
 		for (int i = 0; i < currentNode.getChildNodes().getLength(); i++) {
 			Node node = currentNode.getChildNodes().item(i);
 			if (node.getNodeName().equals(ctx.tagName.getText())) {
