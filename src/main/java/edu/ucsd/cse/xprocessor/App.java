@@ -114,6 +114,10 @@ public class App {
 				rootElement.appendChild(nodes);
 
 				for (Node node : result.getNodes()) {
+					if(node == null){
+						//System.out.println("Node is null ");
+						continue;
+					}
 					Node newNode = doc.importNode(node, true);
 					nodes.appendChild(newNode);
 				}

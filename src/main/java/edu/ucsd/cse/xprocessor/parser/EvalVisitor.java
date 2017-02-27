@@ -571,7 +571,10 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				firstIteration = true;
 				for (int i = 0; i < ctx.varList.size(); i++) {
 					String varName = ctx.varList.get(i).getText();
+					
 					XQueryResult subQueryResult = visit(ctx.queryList.get(i));
+					System.out.println("Varname is "+varName + " Query is " + ctx.queryList.get(i).getText() );
+					System.out.println("Result of the query is " + subQueryResult.getNodes());	
 					currentContext = currentContext.setVariableValue(varName, subQueryResult);
 				}
 			}
@@ -724,7 +727,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualVal(XQueryParser.CondEqualValContext ctx) {
-		System.out.println("visiting CondEqualVal");
+		System.out.println("visiting CondEqualVal Left Query"+ ctx.leftQuery.getText() + " Right query = "+ ctx.rightQuery.getText() );
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
 
@@ -1003,11 +1006,13 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		NodeListImpl nodes = new NodeListImpl();
 		for (int i = 0; i < currentNode.getChildNodes().getLength(); i++) {
 			Node node = currentNode.getChildNodes().item(i);
-			if (node.getNodeType() == Node.TEXT_NODE) {
+			String text = node.getTextContent();
+			text = text.trim();
+			if (node.getNodeType() == Node.TEXT_NODE && !text.isEmpty()) {
 				nodes.add(node);
 			}
 		}
-
+        
 		result.setNodes(nodes);
 
 		return result;

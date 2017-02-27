@@ -1,3 +1,3 @@
-for $a in doc("input.xml")//cars
-where $a/cars/supercars/carname/text() eq "Ferrari 101"
-return $a
+for $b in doc("input.xml")/sedan,
+     $v1 in $b/text()
+return <x>{$v1}</x>

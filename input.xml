@@ -12,4 +12,8 @@
     <sedan>
         <carname type="hybrid">PriusPrime 707</carname>
     </sedan>
+    <supercars>
+        <carname type="formula one">B - Ferrari 101</carname>
+        <carname type="sports">B - Ferrari 202</carname>
+    </supercars>
 </cars>
