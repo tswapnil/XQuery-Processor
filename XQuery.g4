@@ -8,8 +8,8 @@ package edu.ucsd.cse.xprocessor.parser;
 start : xq
 	;
 	
-xq : var=VAR																											#xqVar
-	| strConst=STRING																						#xqStrConstDef
+xq :  var=VAR																										#xqVar
+	| strConst=STRING																						        #xqStrConstDef
 	| ap																											#xqAp
 	| '(' query=xq ')'																								#xqParenExpr
 	| leftQuery=xq ',' rightQuery=xq																				#xqConcatExpr

@@ -42,7 +42,7 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
  */
 public class App {
 
-	private static String queryFileName = "ml2_query7.xqr";
+	private static String queryFileName = "testFile.xqr";
 	private static String outputFileName = "result.xml";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
@@ -70,22 +70,22 @@ public class App {
 		EvalVisitor visitor = new EvalVisitor();
 		XQueryResult result = visitor.visit(tree);
 		
-//		NodeListImpl nodes = result.getNodes();
-//		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
-//		
-//        if(nodes!=null){
-//        	for(int i=0;i<nodes.getLength();i++){
-//              map.put(nodes.item(i), i);		
-//        	}
-//        	NodeListImpl newNodes = new NodeListImpl();
-//        	Iterator it = map.entrySet().iterator();
-//        	while(it.hasNext()){
-//        		Map.Entry pair = (Map.Entry) it.next();
-//        	    Node temp = (Node) pair.getKey();
-//        	    newNodes.add(temp);
-//        	}
-//        	result.setNodes(newNodes);
-//        }
+		NodeListImpl nodes = result.getNodes();
+		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
+		
+        if(nodes!=null){
+        	for(int i=0;i<nodes.getLength();i++){
+              map.put(nodes.item(i), i);		
+       	}
+        	NodeListImpl newNodes = new NodeListImpl();
+        	Iterator it = map.entrySet().iterator();
+       	while(it.hasNext()){
+        		Map.Entry pair = (Map.Entry) it.next();
+        	    Node temp = (Node) pair.getKey();
+        	    newNodes.add(temp);
+        	}
+        	result.setNodes(newNodes);
+        }
         
         
 		generateResultXMLFile(result);
