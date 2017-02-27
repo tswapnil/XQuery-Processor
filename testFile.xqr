@@ -1,1 +1,1 @@
-doc("input.xml")/cars/supercars/../supercars
+for $a in doc("input.xml")/cars/supercars/../supercars return <a>{$a}</a>
