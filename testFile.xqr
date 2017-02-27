@@ -1,3 +1,11 @@
-for $b in doc("input.xml")/sedan,
-     $v1 in $b/text()
-return <x>{$v1}</x>
+<acts> 
+ {	for $a in doc("j_caesar.xml")//ACT
+where empty ( for $sp in $a/SCENE/SPEECH/SPEAKER
+ where $sp/text() = "CASCA" 
+   return <speaker> {$sp/text()}</speaker> 
+     )
+
+            return <act>{$a/TITLE/text()}</act>
+
+        }
+</acts>

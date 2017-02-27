@@ -151,7 +151,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		if (queryResult != null) {
 			queryNodes = queryResult.getNodes();
 		}
-
+        
 		NodeListImpl nodes = new NodeListImpl();
 		nodes.add(makeElement(tagName, queryNodes));
 		XQueryResult result = new XQueryResult(XQueryResultType.NODES);

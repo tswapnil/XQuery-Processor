@@ -76,14 +76,14 @@ public class App {
 		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
 		
         if(nodes!=null){
-        	for(int i=0;i<nodes.getLength();i++){
-              map.put(nodes.item(i), i);		
+       	for(int i=0;i<nodes.getLength();i++){
+             map.put(nodes.item(i), i);		
        	}
-        	NodeListImpl newNodes = new NodeListImpl();
+       	NodeListImpl newNodes = new NodeListImpl();
         	Iterator it = map.entrySet().iterator();
-       	while(it.hasNext()){
+      	while(it.hasNext()){
         		Map.Entry pair = (Map.Entry) it.next();
-        	    Node temp = (Node) pair.getKey();
+       	    Node temp = (Node) pair.getKey();
         	    newNodes.add(temp);
         	}
         	result.setNodes(newNodes);
