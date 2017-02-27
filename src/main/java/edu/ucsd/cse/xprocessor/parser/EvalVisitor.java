@@ -186,6 +186,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqLetExpr(XQueryParser.XqLetExprContext ctx) {
+		System.out.println("Visiting let expr");
 		if (currentContext != null) {
 			// letClause only updates the current context but returns null so
 			// ignoring return value
@@ -462,6 +463,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitLetVarDef(XQueryParser.LetVarDefContext ctx) {
+		System.out.println("visiting LetVarDef");
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
