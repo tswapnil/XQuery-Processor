@@ -1,7 +1,7 @@
 <result>{
 for $s in doc("j_caesar.xml")//SCENE 
  
-where $s//SPEAKER/text()="CALPURNIA"
+where $s//SPEAKER/text()="CAESAR"
 return 
 <scenes> { <scene> {$s/TITLE/text()} </scene>,
 for $a in doc("j_caesar.xml")//ACT

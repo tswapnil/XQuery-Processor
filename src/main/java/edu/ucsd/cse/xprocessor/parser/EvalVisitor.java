@@ -422,8 +422,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 					String varName = ctx.varList.get(i).getText();
 					
 					XQueryResult subQueryResult = visit(ctx.queryList.get(i));
-					System.out.println("QueryList(i) = "+ctx.queryList.get(i).getText());
-					
+					//System.out.println("QueryList(i) = "+ctx.queryList.get(i).getText());
+					//System.out.println("For subqueryresult " + subQueryResult.getNodes().get(0).getChildNodes().item(1).getTextContent());
+					//System.out.println("For subqueryresult " + subQueryResult.getNodes().get(1));
 					currentContext = currentContext.setVariableValue(varName, subQueryResult);
 				}
 			}
@@ -458,8 +459,11 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 							String vName = ctx.varList.get(i).getText();
 							XQueryResult subQueryResult = visit(ctx.queryList.get(i));
 							currentContext = currentContext.setVariableValue(vName, subQueryResult);
+							System.out.println("QueryList(i) = "+ctx.queryList.get(i).getText());
+							System.out.println("For subqueryresult " + subQueryResult.getNodes());
+						
 						}
-
+                        
 						// exit while loop as all variables are now ready for
 						// next iteration
 						break;

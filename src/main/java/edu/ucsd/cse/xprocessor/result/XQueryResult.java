@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.*;
 
 import org.w3c.dom.Node;
 
@@ -39,7 +40,7 @@ public class XQueryResult {
 	}
 
 	public void setNodes(NodeListImpl nodes) {
-		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
+		HashMap<Node,Integer> map = new LinkedHashMap<Node,Integer>();
 		
         if(nodes!=null){
        	for(int i=0;i<nodes.getLength();i++){

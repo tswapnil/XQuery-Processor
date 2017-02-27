@@ -72,22 +72,22 @@ public class App {
 		if(result==null){
 			System.out.println("Result is null");
 		}
-		NodeListImpl nodes = result.getNodes();
-		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
-		
-        if(nodes!=null){
-       	for(int i=0;i<nodes.getLength();i++){
-             map.put(nodes.item(i), i);		
-       	}
-       	NodeListImpl newNodes = new NodeListImpl();
-       	Iterator it = map.entrySet().iterator();
-     	while(it.hasNext()){
-       		Map.Entry pair = (Map.Entry) it.next();
-      	    Node temp = (Node) pair.getKey();
-       	    newNodes.add(temp);
-       	}
-        	result.setNodes(newNodes);
-        }
+//		NodeListImpl nodes = result.getNodes();
+//		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
+//		
+//        if(nodes!=null){
+//       	for(int i=0;i<nodes.getLength();i++){
+//             map.put(nodes.item(i), i);		
+//       	}
+//       	NodeListImpl newNodes = new NodeListImpl();
+//       	Iterator it = map.entrySet().iterator();
+//     	while(it.hasNext()){
+//       		Map.Entry pair = (Map.Entry) it.next();
+//      	    Node temp = (Node) pair.getKey();
+//       	    newNodes.add(temp);
+//       	}
+//        	result.setNodes(newNodes);
+//        }
         
         
 		generateResultXMLFile(result);
