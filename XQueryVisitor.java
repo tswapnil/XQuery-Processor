@@ -1,7 +1,4 @@
 // Generated from XQuery.g4 by ANTLR 4.6
-
-package edu.ucsd.cse.xprocessor.parser;
-
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -89,12 +86,26 @@ public interface XQueryVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitXqForExpr(XQueryParser.XqForExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code xqTagClause}
+	 * labeled alternative in {@link XQueryParser#xq}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitXqTagClause(XQueryParser.XqTagClauseContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code xqSlashExpr}
 	 * labeled alternative in {@link XQueryParser#xq}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitXqSlashExpr(XQueryParser.XqSlashExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code tagClauseImpl}
+	 * labeled alternative in {@link XQueryParser#tagClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTagClauseImpl(XQueryParser.TagClauseImplContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code forVarIter}
 	 * labeled alternative in {@link XQueryParser#forClause}.

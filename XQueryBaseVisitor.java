@@ -1,7 +1,4 @@
 // Generated from XQuery.g4 by ANTLR 4.6
-
-package edu.ucsd.cse.xprocessor.parser;
-
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -96,7 +93,21 @@ public class XQueryBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitXqTagClause(XQueryParser.XqTagClauseContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitXqSlashExpr(XQueryParser.XqSlashExprContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitTagClauseImpl(XQueryParser.TagClauseImplContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

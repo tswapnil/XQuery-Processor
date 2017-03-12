@@ -1,6 +1,6 @@
 grammar XQuery;
 
-/*  
+/*   
 @header {
 package edu.ucsd.cse.xprocessor.parser;
 }
@@ -16,12 +16,16 @@ xq :  var=VAR																										#xqVar
 	| leftQuery=xq ',' rightQuery=xq																				#xqConcatExpr
 	| query=xq '/' relPath=rp																						#xqSlashExpr
 	| query=xq '//' relPath=rp																						#xqDblSlashExpr
-	| '<' openTagName=ID '>' '{' query=xq '}' '</' closeTagName=ID '>'												#xqContTagExpr
+	|  												                                                                #xqContTagExpr
 	| loop=forClause (declaration=letClause)* (condition=whereClause)* output=returnClause								#xqForExpr
 	| declaration=letClause query=xq																				#xqLetExpr
 	| join=joinClause																								#xqJoinExpr
-	;
-	
+	| tClause=tagClause																										#xqTagClause
+	; 
+
+tagClause : '<' openTagNameList+=ID '>' '{' queryList+=xq '}' '</' closeTagNameList+=ID '>' ('<' openTagNameList+=ID '>' '{' queryList+=xq '}' '</' closeTagNameList+=ID '>')* #tagClauseImpl	
+    ;
+
 forClause : 'for' varList+=VAR 'in' queryList+=xq (',' varList+=VAR 'in' queryList+=xq)*								#forVarIter
 	;
 	

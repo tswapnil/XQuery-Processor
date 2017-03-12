@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.antlr.v4.runtime.misc.NotNull;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,6 +22,8 @@ import edu.ucsd.cse.xprocessor.parser.context.XQueryContext;
 import edu.ucsd.cse.xprocessor.result.NodeListImpl;
 import edu.ucsd.cse.xprocessor.result.XQueryResult;
 import edu.ucsd.cse.xprocessor.result.XQueryResultType;
+
+import java.util.*;
 
 /**
  * @author Dhruv Sharma (dhsharma@cs.ucsd.edu)
@@ -47,6 +50,19 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		this.currentContext = new XQueryContext();
 		this.forStack = new Stack<Integer>();
 		this.currentForIteration = -1;
+	}
+	/**
+	 * Milestone #3
+	 * @throws Exception 
+	 * 
+	 * 
+	 */
+	
+	public NodeListImpl join (XQueryContext listL , XQueryContext listR, NodeListImpl attListL, NodeListImpl attListR) throws Exception{
+		if (attListL.getLength()!=attListR.getLength()){
+			throw new Exception("Attribute Lists are not of equal length ");
+		}
+		return null;
 	}
 
 	/**
@@ -131,33 +147,70 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			throw new NullPointerException("Variable context is null");
 		}
 	}
+	@Override
+	public XQueryResult visitXqTagClause(XQueryParser.XqTagClauseContext ctx) {
+		System.out.println("visiting XqTagClause");
+		
+		return visitChildren(ctx);
+	}
+	
+	@Override 
+	public XQueryResult visitTagClauseImpl( XQueryParser.TagClauseImplContext ctx) { 
+		if (ctx.openTagNameList.size()!=ctx.closeTagNameList.size()){
+			throw new IllegalArgumentException("Please keep the number of open tags and closed tags same");
+		} 
+		if (ctx.openTagNameList.size()!=ctx.queryList.size()){
+			throw new IllegalArgumentException("Please keep the number of tags and queries same");
+		}
+		NodeListImpl nodes = new NodeListImpl();
+		for (int i = 0; i < ctx.openTagNameList.size(); i++){
+			if(!ctx.openTagNameList.get(i).getText().equals(ctx.closeTagNameList.get(i).getText())){
+				throw new IllegalArgumentException("Please keep the tag Names same");
+			}
+			XQueryResult queryResult = visit(ctx.queryList.get(i));
+			String tagName = ctx.openTagNameList.get(i).getText();
 
+			NodeListImpl queryNodes = null;
+			if (queryResult != null) {
+				queryNodes = queryResult.getNodes();
+			}
+			nodes.add(makeElement(tagName, queryNodes));
+			
+		}
+		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
+		result.setNodes(nodes);
+		return result; 
+		
+	}
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public XQueryResult visitXqContTagExpr(XQueryParser.XqContTagExprContext ctx) {
-		System.out.println("visiting XqContTagExpr");
-		// make sure open and closing tag names match
-		if (!ctx.openTagName.getText().equals(ctx.closeTagName.getText())) {
-			throw new RuntimeException(
-					"Malformed query! Opening and closing tag-name for the container node do not match. OpenTag: "
-							+ ctx.openTagName.getText() + ", CloseTag: " + ctx.closeTagName.getText());
-		}
+//		System.out.println("visiting XqContTagExpr");
+//		System.out.println(ctx.openTagName.getText());
+//		System.out.println(ctx.closeTagName.getText());
+//		
+//		// make sure open and closing tag names match
+//		if (!ctx.openTagName.getText().equals(ctx.closeTagName.getText())) {
+//			throw new RuntimeException(
+//					"Malformed query! Opening and closing tag-name for the container node do not match. OpenTag: "
+//							+ ctx.openTagName.getText() + ", CloseTag: " + ctx.closeTagName.getText());
+//		}
+//
+//		String tagName = ctx.openTagName.getText();
+//		XQueryResult queryResult = visit(ctx.query);
+//		NodeListImpl queryNodes = null;
+//		if (queryResult != null) {
+//			queryNodes = queryResult.getNodes();
+//		}
+//        
+//		NodeListImpl nodes = new NodeListImpl();
+//		nodes.add(makeElement(tagName, queryNodes));
+//		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
+//		result.setNodes(nodes);
 
-		String tagName = ctx.openTagName.getText();
-		XQueryResult queryResult = visit(ctx.query);
-		NodeListImpl queryNodes = null;
-		if (queryResult != null) {
-			queryNodes = queryResult.getNodes();
-		}
-        
-		NodeListImpl nodes = new NodeListImpl();
-		nodes.add(makeElement(tagName, queryNodes));
-		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
-		result.setNodes(nodes);
-
-		return result;
+		return null;
 	}
 
 	/**
@@ -420,7 +473,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 				firstIteration = true;
 				for (int i = 0; i < ctx.varList.size(); i++) {
 					String varName = ctx.varList.get(i).getText();
-					
+					//System.out.println(varName);
 					XQueryResult subQueryResult = visit(ctx.queryList.get(i));
 					//System.out.println("QueryList(i) = "+ctx.queryList.get(i).getText());
 					//System.out.println("For subqueryresult " + subQueryResult.getNodes().get(0).getChildNodes().item(1).getTextContent());
@@ -821,10 +874,21 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws Exception 
 	 */
 	@Override
 	public XQueryResult visitJoinDef(XQueryParser.JoinDefContext ctx) {
 		System.out.println("visiting JoinDef");
+		XQueryResult left = visit(ctx.query1);
+		XQueryResult right = visit(ctx.query2);
+		if (ctx.attrList1.size()!=ctx.attrList2.size()){
+	
+			throw new IllegalArgumentException("Attribute Lists Do not match in size");
+			
+		}
+		for (int i = 0; i < ctx.attrList1.size(); i++) {
+			System.out.println(ctx.attrList1.get(i));
+		}
 		// TODO: to be completed
 		return visitChildren(ctx);
 	}
