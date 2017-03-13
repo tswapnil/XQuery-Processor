@@ -886,8 +886,13 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			throw new IllegalArgumentException("Attribute Lists Do not match in size");
 			
 		}
+		if (left == null | right == null) {
+		
+		}
+		System.out.println("Printing Attribute List -------------------------------------");
+		System.out.println("");
 		for (int i = 0; i < ctx.attrList1.size(); i++) {
-			System.out.println(ctx.attrList1.get(i) + " vs " + ctx.attrList2.get(i) );
+			System.out.println(ctx.attrList1.get(i).getText() + " vs " + ctx.attrList2.get(i).getText() );
 		}
 		// TODO: to be completed
 		return visitChildren(ctx);
@@ -1190,7 +1195,11 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
      
 		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
 		NodeListImpl nodes = new NodeListImpl();
+		result.setNodes(nodes);
 		//System.out.println(currentNode.getNodeName());
+		if(currentNode == null){
+			return result;
+		}
 		if(currentNode.getNodeName().equals(ctx.tagName.getText())){
 			nodes.add(currentNode);
 		}
