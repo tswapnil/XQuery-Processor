@@ -30,6 +30,7 @@ import org.w3c.dom.Text;
 
 import edu.ucsd.cse.xprocessor.parser.EvalVisitor;
 import edu.ucsd.cse.xprocessor.parser.XQueryLexer;
+import edu.ucsd.cse.xprocessor.parser.XQueryOptimizer;
 import edu.ucsd.cse.xprocessor.parser.XQueryParser;
 import edu.ucsd.cse.xprocessor.result.NodeListImpl;
 import edu.ucsd.cse.xprocessor.result.XQueryResult;
@@ -42,7 +43,7 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
  */
 public class App {
 
-	private static String queryFileName = "testFile.xqr";
+	private static String queryFileName = "test_query.xqr";
 	private static String outputFileName = "result.xml";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
@@ -67,11 +68,19 @@ public class App {
 		parser.removeErrorListeners();
 
 		ParseTree tree = parser.start();
+		
+		XQueryOptimizer visitor = new XQueryOptimizer();
+		String optimizedQuery = visitor.visit(tree);
+		
+		System.out.println(optimizedQuery);
+		
+		/*
 		EvalVisitor visitor = new EvalVisitor();
 		XQueryResult result = visitor.visit(tree);
 		if(result==null){
 			System.out.println("Result is null");
 		}
+		*/
 //		NodeListImpl nodes = result.getNodes();
 //		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
 //		
@@ -90,7 +99,7 @@ public class App {
 //        }
         
         
-		generateResultXMLFile(result);
+		//generateResultXMLFile(result);
 
 	}
 
