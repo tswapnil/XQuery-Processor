@@ -4,7 +4,7 @@ grammar XQuery;
 @header {
 package edu.ucsd.cse.xprocessor.parser;
 }
-*/
+ */
 
 start : xq
 	;
@@ -49,8 +49,8 @@ cond : leftQuery=xq ('='|'eq') rightQuery=xq																		#condEqualVal
 	;
 	
 joinClause : 'join' '(' query1=xq ',' query2=xq ','
-	'[' '"' attrList1+=ID '"' (',' '"' attrList1+=ID '"')* ']' ','
-	'[' '"' attrList2+=ID '"' (',' '"' attrList2+=ID '"')* ']'
+	'['  attrList1+=ID  (',' attrList1+=ID )* ']' ','
+	'['  attrList2+=ID  (',' attrList2+=ID )* ']'
 	')'																												#joinDef
 	;
 

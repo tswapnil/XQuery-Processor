@@ -887,7 +887,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			
 		}
 		for (int i = 0; i < ctx.attrList1.size(); i++) {
-			System.out.println(ctx.attrList1.get(i));
+			System.out.println(ctx.attrList1.get(i) + " vs " + ctx.attrList2.get(i) );
 		}
 		// TODO: to be completed
 		return visitChildren(ctx);
