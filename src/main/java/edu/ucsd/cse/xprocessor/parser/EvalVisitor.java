@@ -878,13 +878,15 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			return "";
 		}
 		String str = "";
-		
-		   Node first = node.getFirstChild();
-		   if(first == null){
+		Node first = null;
+		  if (node.hasChildNodes()){
+		    first = node.getFirstChild();
+		   }
+		  else {
 			   return "";
 		   }
 			while(first.getNextSibling()!=null){
-				str = str + "0"+first.getNodeName() + first.getNodeType()+ first.getNodeValue()+"0";
+				str = str + "_"+first.getNodeName() + first.getNodeType()+ first.getNodeValue()+"_";
 				first = first.getNextSibling();
 			}
 			first = node.getFirstChild();
@@ -948,7 +950,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 					lMap.put(key,nodes);
 				  }
 				  
-				  System.out.println(lNodes.get(j).getChildNodes().item(k).getChildNodes().item(0));	
+				  System.out.println(getHash(lNodes.get(j).getChildNodes().item(k),0));	
 			     
 			  }
 		}
