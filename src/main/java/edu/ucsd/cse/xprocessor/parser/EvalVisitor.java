@@ -871,6 +871,34 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 		return result;
 	}
+	
+	public String getHash (Node node, int level){
+		
+		if(node == null){
+			return "";
+		}
+		String str = "";
+		
+		   Node first = node.getFirstChild();
+		   if(first == null){
+			   return "";
+		   }
+			while(first.getNextSibling()!=null){
+				str = str + "0"+first.getNodeName() + first.getNodeType()+ first.getNodeValue()+"0";
+				first = first.getNextSibling();
+			}
+			first = node.getFirstChild();
+			str = level + str + level;
+			
+			while(first.getNextSibling()!=null){
+				str = str + getHash(first,level+1);
+				first = first.getNextSibling();
+			}
+		
+		
+		return str;
+		
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -881,19 +909,72 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		System.out.println("visiting JoinDef");
 		XQueryResult left = visit(ctx.query1);
 		XQueryResult right = visit(ctx.query2);
+		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
 		if (ctx.attrList1.size()!=ctx.attrList2.size()){
 	
 			throw new IllegalArgumentException("Attribute Lists Do not match in size");
 			
 		}
 		if (left == null | right == null) {
-		
+		    NodeListImpl nodes = new NodeListImpl();
+		    result.setNodes(nodes);
+		    return result;
 		}
+		NodeListImpl lNodes = left.getNodes();
+		NodeListImpl rNodes = right.getNodes();
+		
 		System.out.println("Printing Attribute List -------------------------------------");
 		System.out.println("");
 		for (int i = 0; i < ctx.attrList1.size(); i++) {
 			System.out.println(ctx.attrList1.get(i).getText() + " vs " + ctx.attrList2.get(i).getText() );
+		    }
+		HashMap<Integer, NodeListImpl> lMap = new LinkedHashMap<Integer,NodeListImpl> ();
+		HashMap<Integer, NodeListImpl> rMap = new LinkedHashMap<Integer,NodeListImpl> ();
+		
+		for (int j=0;j<lNodes.getLength();j++){
+			  for(int k=0;k<lNodes.get(j).getChildNodes().getLength();k++) 
+			  { 
+				  int key = lNodes.get(j).getChildNodes().item(k).getNodeName().hashCode(); 
+				  
+				  if (!lMap.containsKey(key)){
+					  NodeListImpl nodes = new NodeListImpl();
+	                   nodes.add(lNodes.get(j).getChildNodes().item(k))	;		
+			           lMap.put(key, nodes);
+			           
+				  }
+				  else{
+					NodeListImpl nodes = lMap.get(key);
+					nodes.add(lNodes.get(j).getChildNodes().item(k));
+					lMap.put(key,nodes);
+				  }
+				  
+				  System.out.println(lNodes.get(j).getChildNodes().item(k).getChildNodes().item(0));	
+			     
+			  }
 		}
+		
+		for (int j=0;j<rNodes.getLength();j++){
+			  for(int k=0;k<rNodes.get(j).getChildNodes().getLength();k++) 
+			  { 
+				  int key = rNodes.get(j).getChildNodes().item(k).getNodeName().hashCode(); 
+				  if (!rMap.containsKey(key)){
+					  NodeListImpl nodes = new NodeListImpl();
+	                   nodes.add(rNodes.get(j).getChildNodes().item(k))	;		
+			           rMap.put(key, nodes);
+			           
+				  }
+				  else{
+					NodeListImpl nodes = rMap.get(key);
+					nodes.add(rNodes.get(j).getChildNodes().item(k));
+					rMap.put(key,nodes);
+				  }
+				  //System.out.println(lNodes.get(j).getChildNodes().item(k).getNodeName().hashCode());	
+			     
+			  }
+		}
+		
+		
+		
 		// TODO: to be completed
 		return visitChildren(ctx);
 	}
