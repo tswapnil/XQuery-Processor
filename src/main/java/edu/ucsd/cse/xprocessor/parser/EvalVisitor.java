@@ -872,35 +872,82 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		return result;
 	}
 	
-	public String getHash (Node node, int level){
-		
-		if(node == null){
-			return "";
+	public String levelOrderHash (Node node){
+		if(node==null){
+			return "NULL";
 		}
-		String str = "";
-		Node first = null;
-		  if (node.hasChildNodes()){
-		    first = node.getFirstChild();
-		   }
-		  else {
-			   return "";
-		   }
-			while(first.getNextSibling()!=null){
-				str = str + "_"+first.getNodeName() + first.getNodeType()+ first.getNodeValue()+"_";
-				first = first.getNextSibling();
-			}
-			first = node.getFirstChild();
-			str = level + str + level;
-			
-			while(first.getNextSibling()!=null){
-				str = str + getHash(first,level+1);
-				first = first.getNextSibling();
-			}
+		Deque<Node> dq = new LinkedList<Node>();
+		dq.add(node);
+		NodeListImpl nodes = new NodeListImpl();
+		Node levelMarker = null;
+		String str ="";
+		dq.add(null);
+		int j=0;
 		
+		while(!(dq.size()==1 && dq.removeFirst()==null)){
+              Node temp = dq.removeFirst();
+			
+			if(temp!=null) {
+				String tString = ""+temp.getNodeValue();
+				tString = tString.trim();
+				tString += temp.getNodeType();
+				tString = tString.trim();
+				tString += temp.getTextContent();
+				tString =tString.trim();
+				if(temp==node){
+					str = str +  tString;
+				}
+				else{
+					str = str + temp.getNodeName().trim() +  tString;	
+				}
+				
+			for (int i=0;i<temp.getChildNodes().getLength();i++)
+			{
+				dq.add(temp.getChildNodes().item(i));
+			}
+			
+			}
+			else{
+				 str += "|";
+				dq.add(null);
+				
+				
+			}
+			
+		}
 		
 		return str;
-		
-	}
+		}
+	
+//	public String getHash(Node node ){
+//		return "";
+//	}
+//	public String getHashPre (Node node, int level){
+//		
+//		if(node == null){
+//			return "";
+//		}
+//		//System.out.println("Get Hash level = "+level+" "+node.getNodeName());
+//		String str = "";
+//		str = level + node.getNodeName()+node.getNodeType() + node.getNodeValue() + level ;
+//		Node first = null;
+//		  if (node.hasChildNodes()){
+//		    first = node.getFirstChild();
+//		   }
+//		  else {
+//			   return str;
+//		   }
+//			
+//		   while(first!=null){
+//				str = str + getHashPre(first,level+1);
+//				first = first.getNextSibling();
+//		   }
+//		
+//		
+//		return str;
+//		
+//	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -926,31 +973,49 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		NodeListImpl rNodes = right.getNodes();
 		
 		System.out.println("Printing Attribute List -------------------------------------");
-		System.out.println("");
+		System.out.println("lNodes length == " + lNodes.getLength());
 		for (int i = 0; i < ctx.attrList1.size(); i++) {
 			System.out.println(ctx.attrList1.get(i).getText() + " vs " + ctx.attrList2.get(i).getText() );
 		    }
+		String hashVar = ctx.attrList1.get(0).getText();
+		String hashVarR = ctx.attrList2.get(0).getText();
 		HashMap<Integer, NodeListImpl> lMap = new LinkedHashMap<Integer,NodeListImpl> ();
 		HashMap<Integer, NodeListImpl> rMap = new LinkedHashMap<Integer,NodeListImpl> ();
-		
+//		//Testing getNextSibling
+//		Node x = lNodes.get(0);
+//		 x = x.getFirstChild();
+//		 x = x.getFirstChild();
+//		 x = x.getFirstChild();
+//		 x = x.getNextSibling();
+//		 x = x.getFirstChild();
+//		 while(x!=null)
+//		   {System.out.println("x value is "+x.getNodeName() +" NextSibling "+ x.getNextSibling());
+//		     x= x.getNextSibling();
+//		   }
 		for (int j=0;j<lNodes.getLength();j++){
+						
 			  for(int k=0;k<lNodes.get(j).getChildNodes().getLength();k++) 
 			  { 
-				  int key = lNodes.get(j).getChildNodes().item(k).getNodeName().hashCode(); 
-				  
+				  String keyString = lNodes.get(j).getChildNodes().item(k).getNodeName();
+				  System.out.println("KeyString is " + keyString + " HashVar is "+hashVar);
+				  if(!hashVar.equals(keyString)){
+					  System.out.println("Entered ");
+					  continue;
+				  }
+				  int key = levelOrderHash(lNodes.get(j).getChildNodes().item(k)).hashCode();
 				  if (!lMap.containsKey(key)){
 					  NodeListImpl nodes = new NodeListImpl();
-	                   nodes.add(lNodes.get(j).getChildNodes().item(k))	;		
+	                   nodes.add(lNodes.get(j))	;		
 			           lMap.put(key, nodes);
 			           
 				  }
 				  else{
 					NodeListImpl nodes = lMap.get(key);
-					nodes.add(lNodes.get(j).getChildNodes().item(k));
+					nodes.add(lNodes.get(j));
 					lMap.put(key,nodes);
 				  }
 				  
-				  System.out.println(getHash(lNodes.get(j).getChildNodes().item(k),0));	
+				 System.out.println("Hash of item " +lNodes.get(j).getChildNodes().item(k).getNodeName() + " is " + levelOrderHash(lNodes.get(j).getChildNodes().item(k)).hashCode());	
 			     
 			  }
 		}
@@ -958,17 +1023,18 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		for (int j=0;j<rNodes.getLength();j++){
 			  for(int k=0;k<rNodes.get(j).getChildNodes().getLength();k++) 
 			  { 
-				  int key = rNodes.get(j).getChildNodes().item(k).getNodeName().hashCode(); 
-				  if (!rMap.containsKey(key)){
-					  NodeListImpl nodes = new NodeListImpl();
-	                   nodes.add(rNodes.get(j).getChildNodes().item(k))	;		
-			           rMap.put(key, nodes);
-			           
+				  String keyString = rNodes.get(j).getChildNodes().item(k).getNodeName(); 
+				  System.out.println("KeyString is " + keyString + " hashVarR is " + hashVarR);
+				  if(!hashVarR.equals(keyString)){
+					  continue;
+				  }
+				  int key = levelOrderHash(rNodes.get(j).getChildNodes().item(k)).hashCode();
+				  System.out.println("Node Name " + rNodes.get(j).getChildNodes().item(k).getNodeName() + " Hash is " + key);
+				  if(lMap.containsKey(key)){
+					  
 				  }
 				  else{
-					NodeListImpl nodes = rMap.get(key);
-					nodes.add(rNodes.get(j).getChildNodes().item(k));
-					rMap.put(key,nodes);
+					  
 				  }
 				  //System.out.println(lNodes.get(j).getChildNodes().item(k).getNodeName().hashCode());	
 			     
