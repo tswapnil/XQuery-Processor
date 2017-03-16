@@ -1,15 +1,34 @@
 package edu.ucsd.cse.xprocessor.parser;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Stack;
+
+import edu.ucsd.cse.xprocessor.parser.util.HyperGraph;
+import edu.ucsd.cse.xprocessor.parser.util.VariableTree;
+import edu.ucsd.cse.xprocessor.parser.util.VariableTreeNode;
+
 public class XQueryOptimizer extends XQueryBaseVisitor<String> {
+
+	private Stack<HashSet<String>> contextStack;
+	private HashSet<String> currentContext;
+	private VariableTree variableTree;
+
+	public XQueryOptimizer() {
+		super();
+		this.contextStack = new Stack<HashSet<String>>();
+		this.currentContext = new HashSet<String>();
+		this.variableTree = new VariableTree();
+	}
 
 	@Override
 	public String visitStart(XQueryParser.StartContext ctx) {
-		return visitChildren(ctx);
+		return visit(ctx.getChild(0));
 	}
 
 	@Override
 	public String visitXqAp(XQueryParser.XqApContext ctx) {
-		return ctx.getChild(0).getText();
+		return visit(ctx.getChild(0));
 	}
 
 	@Override
@@ -36,7 +55,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitXqParenExpr(XQueryParser.XqParenExprContext ctx) {
-		return ctx.getChild(0).getText() + visit(ctx.query) + ctx.getChild(1).getText();
+		return ctx.getChild(0).getText() + visit(ctx.query) + ctx.getChild(2).getText();
 	}
 
 	@Override
@@ -46,7 +65,18 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitXqLetExpr(XQueryParser.XqLetExprContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = "";
+		String declareStatement = visit(ctx.declaration);
+		if (declareStatement != null) {
+			subQuery += declareStatement + "\n";
+		}
+
+		String querySegment = visit(ctx.query);
+		if (querySegment != null) {
+			subQuery += querySegment;
+		}
+
+		return subQuery;
 	}
 
 	@Override
@@ -56,7 +86,71 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitXqForExpr(XQueryParser.XqForExprContext ctx) {
-		return visitChildren(ctx);
+
+		String subQuery = "";
+
+		// ctx.loop (forClause) also populates the variableTree
+		String forStatement = visit(ctx.loop);
+
+		ArrayList<VariableTreeNode> disjointVariableGroups = variableTree.getRootNode().getChildren();
+		if (disjointVariableGroups.size() > 0) {
+			subQuery += "for $tuple in ";
+
+			HyperGraph hyperGraph = new HyperGraph();
+
+			hyperGraph.initHyperGraphNodes(disjointVariableGroups);
+
+			if (ctx.condition != null) {
+				String whereClauseString = ctx.condition.getText().trim();
+				String[] whereConditions = whereClauseString.split("where")[1].split("and");
+				ArrayList<String> conditionList = new ArrayList<String>();
+				for (String condition : whereConditions) {
+					conditionList.add(condition);
+				}
+
+				hyperGraph.initHyperGraphEdges(conditionList);
+			}
+
+			hyperGraph.computeJoinOrder();
+
+			subQuery += hyperGraph.getJoinString() + "\n";
+
+			String resultStatement = ctx.output.getText();
+			
+			for (String variableName : hyperGraph.getVariableNames()) {
+				String regex = "\\" + variableName + "(?![a-zA-Z0-9])";
+				String replacementQuery = "\\$" + variableTree.getPath(variableName) + "/*";
+				resultStatement = resultStatement.replaceAll(regex, replacementQuery);
+			}
+			
+			resultStatement += "\n";
+			
+			subQuery += resultStatement;
+			
+		} else {
+			subQuery += forStatement + visit(ctx.declaration) + visit(ctx.condition) + visit(ctx.output);
+		}
+		
+		// reset variable tree
+		variableTree = null;
+		/*
+		 * Stack<VariableTreeNode> nodeStack = new Stack<VariableTreeNode>();
+		 * for (int i = independentVariableBlocks.size() - 1; i >= 0; i--) {
+		 * nodeStack.push(independentVariableBlocks.get(i)); } while
+		 * (!nodeStack.isEmpty()) { VariableTreeNode node = nodeStack.pop(); if
+		 * (independentVariableBlocks.contains(node)) {
+		 * System.out.println("---****---"); }
+		 * 
+		 * System.out.println(node.getVariableName() + " in " +
+		 * node.getXQuery());
+		 * 
+		 * ArrayList<VariableTreeNode> children = node.getChildren(); for (int i
+		 * = children.size() - 1; i >= 0; i--) {
+		 * nodeStack.push(children.get(i)); } }
+		 * System.out.println("-------------");
+		 */
+
+		return subQuery;
 	}
 
 	@Override
@@ -66,12 +160,40 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitForVarIter(XQueryParser.ForVarIterContext ctx) {
-		return visitChildren(ctx);
+		if (ctx.varList.size() != ctx.queryList.size()) {
+			throw new RuntimeException("For Loop: Number of Variables not equal to number of sub-queries.");
+		}
+
+		String subQuery = "for ";
+
+		for (int i = 0; i < ctx.varList.size(); i++) {
+			if (i > 0) {
+				subQuery += ",\n";
+			}
+
+			String variableName = ctx.varList.get(i).getText();
+			String xquery = ctx.queryList.get(i).getText();
+			variableTree.addNode(variableName, xquery);
+
+			subQuery += variableName + " in " + xquery;
+		}
+
+		return subQuery;
 	}
 
 	@Override
 	public String visitLetVarDef(XQueryParser.LetVarDefContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = ctx.getChild(0).getText() + " ";
+		String varName = ctx.varList.get(0).getText();
+		currentContext.add(varName);
+		subQuery += varName + ctx.getChild(2).getText() + visit(ctx.queryList.get(0));
+		for (int i = 1; i < ctx.varList.size(); i++) {
+			varName = ctx.varList.get(i).getText();
+			currentContext.add(varName);
+			subQuery += ctx.getChild(4 * i).getText() + " " + varName + ctx.getChild(4 * i + 2).getText()
+					+ visit(ctx.queryList.get(i));
+		}
+		return subQuery;
 	}
 
 	@Override
@@ -131,13 +253,13 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitApSlashFile(XQueryParser.ApSlashFileContext ctx) {
-		return ctx.getChild(0).getText() + ctx.docName.getText() + ctx.getChild(1).getText() + ctx.getChild(2).getText()
+		return ctx.getChild(0).getText() + ctx.docName.getText() + ctx.getChild(2).getText() + ctx.getChild(3).getText()
 				+ visit(ctx.relpath);
 	}
 
 	@Override
 	public String visitApDblSlashFile(XQueryParser.ApDblSlashFileContext ctx) {
-		return ctx.getChild(0).getText() + ctx.docName.getText() + ctx.getChild(1).getText() + ctx.getChild(2).getText()
+		return ctx.getChild(0).getText() + ctx.docName.getText() + ctx.getChild(2).getText() + ctx.getChild(3).getText()
 				+ visit(ctx.relpath);
 	}
 
@@ -198,7 +320,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitFilterAndExpr(XQueryParser.FilterAndExprContext ctx) {
-		return visit(ctx.leftf) + ctx.getChild(1).getText() + visit(ctx.rightf);
+		return visit(ctx.leftf) + " " + ctx.getChild(1).getText() + " " + visit(ctx.rightf);
 	}
 
 	@Override
@@ -208,27 +330,27 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitFilterEqualVal(XQueryParser.FilterEqualValContext ctx) {
-		return visit(ctx.left) + ctx.getChild(1).getText() + visit(ctx.right);
+		return visit(ctx.left) + " " + ctx.getChild(1).getText() + " " + visit(ctx.right);
 	}
 
 	@Override
 	public String visitFilterOrExpr(XQueryParser.FilterOrExprContext ctx) {
-		return visit(ctx.leftf) + ctx.getChild(1).getText() + visit(ctx.rightf);
+		return visit(ctx.leftf) + " " + ctx.getChild(1).getText() + " " + visit(ctx.rightf);
 	}
 
 	@Override
 	public String visitFilterParenExpr(XQueryParser.FilterParenExprContext ctx) {
-		return ctx.getChild(0).getText() + visit(ctx.filter) + ctx.getChild(1).getText();
+		return ctx.getChild(0).getText() + visit(ctx.filter) + ctx.getChild(2).getText();
 	}
 
 	@Override
 	public String visitFilterNotExpr(XQueryParser.FilterNotExprContext ctx) {
-		return ctx.getChild(0).getText() + visit(ctx.filter);
+		return ctx.getChild(0).getText() + " " + visit(ctx.filter);
 	}
 
 	@Override
 	public String visitFilterEqualId(XQueryParser.FilterEqualIdContext ctx) {
-		return visit(ctx.left) + ctx.getChild(1).getText() + visit(ctx.right);
+		return visit(ctx.left) + " " + ctx.getChild(1).getText() + " " + visit(ctx.right);
 	}
 
 }

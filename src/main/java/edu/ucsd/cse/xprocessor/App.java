@@ -43,7 +43,7 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
  */
 public class App {
 
-	private static String queryFileName = "test_query.xqr";
+	private static String queryFileName = "testFile.xqr";
 	private static String outputFileName = "result.xml";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
