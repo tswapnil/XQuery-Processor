@@ -359,6 +359,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
 		System.out.println("visiting XqForExpr");
+		long startTime = System.currentTimeMillis();
 		XQueryResultType resultType = XQueryResultType.NODES;
 		NodeListImpl nodes = new NodeListImpl();
 
@@ -421,7 +422,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 		XQueryResult result = new XQueryResult(resultType);
 		result.setNodes(nodes);
-
+		long stopTime = System.currentTimeMillis();
+		long timeElapsed = stopTime - startTime;
+		System.out.println("Time Elapsed for Nested For Query = " + timeElapsed);
 		return result;
 	}
 
@@ -1023,6 +1026,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitJoinDef(XQueryParser.JoinDefContext ctx) {
 		System.out.println("visiting JoinDef");
+		long startTime = System.currentTimeMillis();
 		XQueryResult left = visit(ctx.query1);
 		XQueryResult right = visit(ctx.query2);
 		XQueryResult result = new XQueryResult(XQueryResultType.NODES);
@@ -1138,7 +1142,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		}
 		
 		result.setNodes(resOfJoin);
-		
+		long stopTime = System.currentTimeMillis();
+		long timeElapsed = stopTime - startTime;
+		System.out.println("Time Elapsed in Hash Join ----------------  " + timeElapsed );
 		// TODO: to be completed
 		return result;
 	}
