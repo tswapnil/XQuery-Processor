@@ -1,8 +1,18 @@
-join ( for $b in doc("input.xml")/cars/supercars,
+join(join ( for $b in doc("input.xml")/cars/supercars,
            $tb in $b/carname
            return <tuple> {<b> {$b} </b><tb> {$tb} </tb> }</tuple> ,
        for $ab in doc("input.xml")/cars/supercars,
            $atb in $ab/carname
            return <tuple> {<ab> {$ab} </ab><atb> {$atb} </atb> }</tuple>,
-           [b , tb] ,
-           [ab , atb])
+           [tb , b] ,
+           [atb , ab]) ,
+           join ( for $b2 in doc("input.xml")/cars/supercars,
+           $tb2 in $b2/carname
+           return <tuple> {<b2> {$b2} </b2><tb2> {$tb2} </tb2> }</tuple> ,
+       for $ab2 in doc("input.xml")/cars/supercars,
+           $atb2 in $ab2/carname
+           return <tuple> {<ab2> {$ab2} </ab2><atb2> {$atb2} </atb2> }</tuple>,
+           [tb2 , b2] ,
+           [atb2 , ab2]),
+           [b ], [b2])
+           

@@ -1104,9 +1104,26 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 						Node curNode = list.get(h);
 						System.out.println("CurNode is " + curNode.getChildNodes().item(0));
 						System.out.println("inHand is " + inHand.getChildNodes().item(0));
-						if(equality(curNode.getChildNodes().item(0),inHand.getChildNodes().item(0))){
+					    boolean bool = true;
+						for (int ai = 0; ai < ctx.attrList1.size();ai++){
+							String lAtt = ctx.attrList1.get(ai).getText();
+							String rAtt = ctx.attrList2.get(ai).getText();
+							for(int t1 = 0; t1 < curNode.getChildNodes().getLength();t1++){
+								for (int t2 = 0; t2 < inHand.getChildNodes().getLength();t2++){
+									if(lAtt.equals(curNode.getChildNodes().item(t1).getNodeName()) && rAtt.equals(inHand.getChildNodes().item(t2).getNodeName())){
+										if(!equality(curNode.getChildNodes().item(t1),inHand.getChildNodes().item(t2))){
+											bool = false;
+										}
+									}
+								}
+							}
+							
+							
+						}
+						
+						//if(equality(curNode.getChildNodes().item(0),inHand.getChildNodes().item(0))){
 							//Apply Condition
-						    
+						  if(bool){  
 							
 						    resOfJoin.add( join(curNode,inHand) );	
 						}
