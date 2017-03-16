@@ -948,6 +948,73 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 //		
 //	}
 
+	public boolean equality(Node x, Node y){
+		/*
+		 * Short method : return levelOrderHash(x.getChildNodes().item(0)).hashCode() == y.getChildNodes().item(0)).hashCode() ;
+		 * */
+		System.out.println(levelOrderHash(x.getChildNodes().item(0)).hashCode());
+		System.out.println(levelOrderHash(y.getChildNodes().item(0)).hashCode());
+		if (x == null || y == null) {
+			System.out.println("Block 1");
+			return false;
+		}
+		if(x.getParentNode()!=null && y.getParentNode()!=null){
+			System.out.println("Block 2");
+			if(! (x.getParentNode().getNodeName().trim().equals ("tuple") && y.getParentNode().getNodeName().trim().equals ("tuple"))){
+				System.out.println("Yes this is the one");
+				System.out.println(x.getParentNode().getNodeName());
+				System.out.println(y.getParentNode().getNodeName());
+				
+				if (!x.getNodeName().equals(y.getNodeName())) {
+					return false;
+				}
+				
+			}	
+		}
+		else{
+			System.out.println("Block 3");
+			System.out.println("x = "+ x.getNodeName()+" y="+y.getNodeName());
+			if (!x.getNodeName().equals(y.getNodeName())) {
+				return false;
+			}
+			
+		}
+		
+	
+		if (x.getNodeType() != y.getNodeType()) {
+			System.out.println("Block 4");
+			return false;
+		}
+		if (!x.getTextContent().equals(y.getTextContent())) {
+			System.out.println("Block 5");
+			return false;
+		}
+		
+		if (x.getChildNodes().getLength() != y.getChildNodes().getLength()) {
+			System.out.println("Block 6");
+			return false;
+		}
+		for (int i = 0; i < x.getChildNodes().getLength(); i++) {
+			System.out.println("Comparing " + x.getChildNodes().item(i).getNodeName() + " " + y.getChildNodes().item(i).getNodeName() );
+			if (!equality(x.getChildNodes().item(i), y.getChildNodes().item(i))) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	public Node join (Node x, Node y){
+		NodeListImpl nodes = new NodeListImpl();
+		for (int i=0;i<x.getChildNodes().getLength();i++){
+			nodes.add(x.getChildNodes().item(i));
+		}
+		for (int i=0;i<y.getChildNodes().getLength();i++){
+			nodes.add(y.getChildNodes().item(i));
+		}
+		
+		 
+		return makeElement("tuple",nodes);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -1015,11 +1082,11 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 					lMap.put(key,nodes);
 				  }
 				  
-				 System.out.println("Hash of item " +lNodes.get(j).getChildNodes().item(k).getNodeName() + " is " + levelOrderHash(lNodes.get(j).getChildNodes().item(k)).hashCode());	
+				 //System.out.println("Hash of item " +lNodes.get(j).getChildNodes().item(k).getNodeName() + " is " + levelOrderHash(lNodes.get(j).getChildNodes().item(k)).hashCode());	
 			     
 			  }
 		}
-		
+		NodeListImpl resOfJoin = new NodeListImpl();
 		for (int j=0;j<rNodes.getLength();j++){
 			  for(int k=0;k<rNodes.get(j).getChildNodes().getLength();k++) 
 			  { 
@@ -1029,22 +1096,34 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 					  continue;
 				  }
 				  int key = levelOrderHash(rNodes.get(j).getChildNodes().item(k)).hashCode();
+				  Node inHand = rNodes.get(j);
 				  System.out.println("Node Name " + rNodes.get(j).getChildNodes().item(k).getNodeName() + " Hash is " + key);
 				  if(lMap.containsKey(key)){
-					  
+					NodeListImpl list = lMap.get(key);
+					for (int h=0;h<list.getLength();h++){
+						Node curNode = list.get(h);
+						System.out.println("CurNode is " + curNode.getChildNodes().item(0));
+						System.out.println("inHand is " + inHand.getChildNodes().item(0));
+						if(equality(curNode.getChildNodes().item(0),inHand.getChildNodes().item(0))){
+							//Apply Condition
+						    
+							
+						    resOfJoin.add( join(curNode,inHand) );	
+						}
+					}
 				  }
 				  else{
-					  
+					 //Do nothing  
 				  }
 				  //System.out.println(lNodes.get(j).getChildNodes().item(k).getNodeName().hashCode());	
 			     
 			  }
 		}
 		
-		
+		result.setNodes(resOfJoin);
 		
 		// TODO: to be completed
-		return visitChildren(ctx);
+		return result;
 	}
 
 	/**
