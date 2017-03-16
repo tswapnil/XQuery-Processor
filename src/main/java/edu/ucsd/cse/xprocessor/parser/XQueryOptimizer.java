@@ -50,7 +50,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitXqConcatExpr(XQueryParser.XqConcatExprContext ctx) {
-		return visit(ctx.leftQuery) + ctx.getChild(1).getText() + visit(ctx.rightQuery);
+		return visit(ctx.leftQuery) + ctx.getChild(1).getText() + " " + visit(ctx.rightQuery);
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 			hyperGraph.initHyperGraphNodes(disjointVariableGroups);
 
 			if (ctx.condition != null) {
-				String whereClauseString = ctx.condition.getText().trim();
+				String whereClauseString = visit(ctx.condition).trim();
 				String[] whereConditions = whereClauseString.split("where")[1].split("and");
 				ArrayList<String> conditionList = new ArrayList<String>();
 				for (String condition : whereConditions) {
@@ -115,7 +115,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 			subQuery += hyperGraph.getJoinString() + "\n";
 
-			String resultStatement = ctx.output.getText();
+			String resultStatement = visit(ctx.output);
 			
 			for (String variableName : hyperGraph.getVariableNames()) {
 				String regex = "\\" + variableName + "(?![a-zA-Z0-9])";
@@ -161,20 +161,17 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 	@Override
 	public String visitForVarIter(XQueryParser.ForVarIterContext ctx) {
 		if (ctx.varList.size() != ctx.queryList.size()) {
-			throw new RuntimeException("For Loop: Number of Variables not equal to number of sub-queries.");
+			throw new RuntimeException("For Loop: Number of variables not equal to number of sub-queries.");
 		}
 
-		String subQuery = "for ";
-
+		String subQuery = ctx.getChild(0).getText() + " ";
 		for (int i = 0; i < ctx.varList.size(); i++) {
 			if (i > 0) {
 				subQuery += ",\n";
 			}
-
 			String variableName = ctx.varList.get(i).getText();
 			String xquery = ctx.queryList.get(i).getText();
 			variableTree.addNode(variableName, xquery);
-
 			subQuery += variableName + " in " + xquery;
 		}
 
@@ -198,57 +195,83 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitWhereCondExpr(XQueryParser.WhereCondExprContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = ctx.getChild(0).getText() + " " + visit(ctx.condition);
+		return subQuery;
 	}
 
 	@Override
 	public String visitReturnQuery(XQueryParser.ReturnQueryContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = ctx.getChild(0).getText() + " " + visit(ctx.query);
+		return subQuery;
 	}
 
 	@Override
 	public String visitCondEmpty(XQueryParser.CondEmptyContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = ctx.getChild(0).getText() + ctx.getChild(1).getText() + visit(ctx.query) + ctx.getChild(3).getText();
+		return subQuery;
 	}
 
 	@Override
 	public String visitCondVarCheck(XQueryParser.CondVarCheckContext ctx) {
-		return visitChildren(ctx);
+		if (ctx.varList.size() != ctx.queryList.size()) {
+			throw new RuntimeException("Some Condition: Number of variables not equal to number of sub-queries.");
+		}
+
+		String subQuery = ctx.getChild(0) + " ";
+		for (int i = 0; i < ctx.varList.size(); i++) {
+			if (i > 0) {
+				subQuery += ", ";
+			}
+			String variableName = ctx.varList.get(i).getText();
+			String xquery = ctx.queryList.get(i).getText();
+			variableTree.addNode(variableName, xquery);
+			subQuery += variableName + " in " + xquery;
+		}
+		
+		subQuery += " " + ctx.getChild(ctx.getChildCount() - 2) + " " + ctx.getChild(ctx.getChildCount() - 1);
+
+		return subQuery;
 	}
 
 	@Override
 	public String visitCondOrExpr(XQueryParser.CondOrExprContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = visit(ctx.leftCondition) + " " + ctx.getChild(1).getText() + " " + visit(ctx.rightCondition);
+		return subQuery;
 	}
 
 	@Override
 	public String visitCondParenExpr(XQueryParser.CondParenExprContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = ctx.getChild(0).getText() + visit(ctx.condition) + ctx.getChild(2).getText();
+		return subQuery;
 	}
 
 	@Override
 	public String visitCondEqualVal(XQueryParser.CondEqualValContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = visit(ctx.leftQuery) + " " + ctx.getChild(1).getText() + " " + visit(ctx.rightQuery);
+		return subQuery;
 	}
 
 	@Override
 	public String visitCondAndExpr(XQueryParser.CondAndExprContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = visit(ctx.leftCondition) + " " + ctx.getChild(1).getText() + " " + visit(ctx.rightCondition);
+		return subQuery;
 	}
 
 	@Override
 	public String visitCondEqualId(XQueryParser.CondEqualIdContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = visit(ctx.leftQuery) + " " + ctx.getChild(1).getText() + " " + visit(ctx.rightQuery);
+		return subQuery;
 	}
 
 	@Override
 	public String visitCondNotExpr(XQueryParser.CondNotExprContext ctx) {
-		return visitChildren(ctx);
+		String subQuery = ctx.getChild(0).getText() + " " + visit(ctx.condition);
+		return subQuery;
 	}
 
 	@Override
 	public String visitJoinDef(XQueryParser.JoinDefContext ctx) {
-		return visitChildren(ctx);
+		return ctx.getText();
 	}
 
 	@Override
@@ -280,7 +303,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitRpConcatExpr(XQueryParser.RpConcatExprContext ctx) {
-		return visit(ctx.left) + ctx.getChild(1).getText() + visit(ctx.right);
+		return visit(ctx.left) + ctx.getChild(1).getText() + " " + visit(ctx.right);
 	}
 
 	@Override
