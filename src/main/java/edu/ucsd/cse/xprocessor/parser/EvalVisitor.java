@@ -74,7 +74,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 
 	private static Text makeText(String text) {
-		System.out.println("visiting makeText");
+		//System.out.println("visiting makeText");
 		Text textNode = null;
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -89,7 +89,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	}
 
 	private static Element makeElement(String tagName, NodeListImpl nodes) {
-		System.out.println("visiting makeElement");
+		//System.out.println("visiting makeElement");
 		Element elementNode = null;
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -115,7 +115,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqAp(XQueryParser.XqApContext ctx) {
-		System.out.println("visiting XqAp");
+		//System.out.println("visiting XqAp");
 		// no change required
 		return visitChildren(ctx);
 	}
@@ -125,7 +125,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqJoinExpr(XQueryParser.XqJoinExprContext ctx) {
-		System.out.println("visiting XqJoinExpr");
+		//System.out.println("visiting XqJoinExpr");
 		// TODO: to be completed
 		return visitChildren(ctx);
 	}
@@ -135,7 +135,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqVar(XQueryParser.XqVarContext ctx) {
-		System.out.println("visiting XqVar");
+		//System.out.println("visiting XqVar");
 		XQueryResult result = null;
 		if (currentContext != null) {
 			String varName = ctx.var.getText();
@@ -154,7 +154,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 	@Override
 	public XQueryResult visitXqTagClause(XQueryParser.XqTagClauseContext ctx) {
-		System.out.println("visiting XqTagClause");
+		//System.out.println("visiting XqTagClause");
 
 		return visitChildren(ctx);
 	}
@@ -221,7 +221,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqParenExpr(XQueryParser.XqParenExprContext ctx) {
-		System.out.println("visiting XqParenExpr");
+		//System.out.println("visiting XqParenExpr");
 		// no further change required
 		return visit(ctx.query);
 	}
@@ -231,7 +231,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqStrConstDef(XQueryParser.XqStrConstDefContext ctx) {
-		System.out.println("visiting XqStrConstDef");
+		//System.out.println("visiting XqStrConstDef");
 		String strConst = ctx.strConst.getText();
 		strConst = strConst.substring(1, strConst.length() - 1);
 
@@ -249,7 +249,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqLetExpr(XQueryParser.XqLetExprContext ctx) {
-		System.out.println("Visiting let expr");
+		//System.out.println("Visiting let expr");
 		if (currentContext != null) {
 			// letClause only updates the current context but returns null so
 			// ignoring return value
@@ -274,7 +274,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqConcatExpr(XQueryParser.XqConcatExprContext ctx) {
-		System.out.println("visiting XqConcatExpr");
+		//System.out.println("visiting XqConcatExpr");
 		XQueryResult leftResult = visit(ctx.leftQuery);
 		XQueryResult rightResult = visit(ctx.rightQuery);
 
@@ -310,7 +310,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqDblSlashExpr(XQueryParser.XqDblSlashExprContext ctx) {
-		System.out.println("visiting XqDblSlashExpr");
+		//System.out.println("visiting XqDblSlashExpr");
 		XQueryResultType resultType = XQueryResultType.NODES;
 
 		NodeListImpl nodes = new NodeListImpl();
@@ -360,7 +360,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqForExpr(XQueryParser.XqForExprContext ctx) {
-		System.out.println("visiting XqForExpr");
+		//System.out.println("visiting XqForExpr");
 		long startTime = System.currentTimeMillis();
 		XQueryResultType resultType = XQueryResultType.NODES;
 		NodeListImpl nodes = new NodeListImpl();
@@ -426,7 +426,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		result.setNodes(nodes);
 		long stopTime = System.currentTimeMillis();
 		long timeElapsed = stopTime - startTime;
-		System.out.println("Time Elapsed for Nested For Query = " + timeElapsed);
+		//System.out.println("Time Elapsed for Nested For Query = " + timeElapsed);
 		return result;
 	}
 
@@ -435,10 +435,10 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqSlashExpr(XQueryParser.XqSlashExprContext ctx) {
-		System.out.println("visiting XqSlashExpr");
+		//System.out.println("visiting XqSlashExpr");
 		NodeListImpl nodes = new NodeListImpl();
 		XQueryResult queryResult = visit(ctx.query);
-		System.out.println(ctx.query.getText());
+		//System.out.println(ctx.query.getText());
 		XQueryResultType resultType = XQueryResultType.NODES;
 
 		if (queryResult.getNodes() != null && queryResult.getNodes().getLength() > 0) {
@@ -467,7 +467,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	public XQueryResult visitForVarIter(XQueryParser.ForVarIterContext ctx) {
 
 		if (currentContext != null) {
-			System.out.println("visiting ForVarIter");
+			//System.out.println("visiting ForVarIter");
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
 			}
@@ -520,8 +520,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 							String vName = ctx.varList.get(i).getText();
 							XQueryResult subQueryResult = visit(ctx.queryList.get(i));
 							currentContext = currentContext.setVariableValue(vName, subQueryResult);
-							System.out.println("QueryList(i) = " + ctx.queryList.get(i).getText());
-							System.out.println("For subqueryresult " + subQueryResult.getNodes());
+						//	System.out.println("QueryList(i) = " + ctx.queryList.get(i).getText());
+						//	System.out.println("For subqueryresult " + subQueryResult.getNodes());
 
 						}
 
@@ -550,7 +550,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	@Override
 	public XQueryResult visitLetVarDef(XQueryParser.LetVarDefContext ctx) {
 
-		System.out.println("visiting LetVarDef");
+		//System.out.println("visiting LetVarDef");
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
@@ -578,7 +578,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitWhereCondExpr(XQueryParser.WhereCondExprContext ctx) {
-		System.out.println("visiting where Cond");
+		//System.out.println("visiting where Cond");
 		if (currentContext != null) {
 			XQueryResult conditionResult = visit(ctx.condition);
 
@@ -593,7 +593,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEmpty(XQueryParser.CondEmptyContext ctx) {
-		System.out.println("visiting CondEmpty");
+		//System.out.println("visiting CondEmpty");
 		XQueryResult result = null;
 		XQueryResult queryResult = visit(ctx.query);
 		if (queryResult == null) {
@@ -613,7 +613,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitReturnQuery(XQueryParser.ReturnQueryContext ctx) {
-		System.out.println("visiting ReturnQuery");
+		//System.out.println("visiting ReturnQuery");
 		if (currentContext != null) {
 			XQueryResult queryResult = visit(ctx.query);
 
@@ -624,7 +624,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	}
 
 	private XQueryResult visitCondVarIter(XQueryParser.CondVarCheckContext ctx) {
-		System.out.println("visiting CondVarIter");
+		//System.out.println("visiting CondVarIter");
 		if (currentContext != null) {
 			if (ctx.varList.size() != ctx.queryList.size()) {
 				throw new RuntimeException("Malformed query! Number of variables and sub-queries are not same.");
@@ -638,8 +638,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 					String varName = ctx.varList.get(i).getText();
 
 					XQueryResult subQueryResult = visit(ctx.queryList.get(i));
-					System.out.println("Varname is " + varName + " Query is " + ctx.queryList.get(i).getText());
-					System.out.println("Result of the query is " + subQueryResult.getNodes());
+					//System.out.println("Varname is " + varName + " Query is " + ctx.queryList.get(i).getText());
+					//System.out.println("Result of the query is " + subQueryResult.getNodes());
 					currentContext = currentContext.setVariableValue(varName, subQueryResult);
 				}
 			}
@@ -700,7 +700,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondVarCheck(XQueryParser.CondVarCheckContext ctx) {
-		System.out.println("visiting CondVarCheck");
+		//System.out.println("visiting CondVarCheck");
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 
 		if (currentContext != null) {
@@ -760,7 +760,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondOrExpr(XQueryParser.CondOrExprContext ctx) {
-		System.out.println("visiting CondorExpr");
+		//System.out.println("visiting CondorExpr");
 		XQueryResult result = null;
 		XQueryResult leftResult = visit(ctx.leftCondition);
 		XQueryResult rightResult = visit(ctx.rightCondition);
@@ -777,7 +777,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondParenExpr(XQueryParser.CondParenExprContext ctx) {
-		System.out.println("visiting CondParenExpr");
+		//System.out.println("visiting CondParenExpr");
 		XQueryResult result = null;
 		XQueryResult conditionResult = visit(ctx.condition);
 		if (conditionResult != null && conditionResult.getType() == XQueryResultType.BOOLEAN) {
@@ -792,8 +792,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualVal(XQueryParser.CondEqualValContext ctx) {
-		System.out.println("visiting CondEqualVal Left Query" + ctx.leftQuery.getText() + " Right query = "
-				+ ctx.rightQuery.getText());
+		//System.out.println("visiting CondEqualVal Left Query" + ctx.leftQuery.getText() + " Right query = "
+		//		+ ctx.rightQuery.getText());
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 		result.setTruth(false);
 
@@ -824,7 +824,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondAndExpr(XQueryParser.CondAndExprContext ctx) {
-		System.out.println("visiting CondAndExpr");
+		//System.out.println("visiting CondAndExpr");
 		XQueryResult result = null;
 		XQueryResult leftResult = visit(ctx.leftCondition);
 		XQueryResult rightResult = visit(ctx.rightCondition);
@@ -841,7 +841,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondEqualId(XQueryParser.CondEqualIdContext ctx) {
-		System.out.println("visiting CondEqualId");
+		//System.out.println("visiting CondEqualId");
 		XQueryResult result = new XQueryResult(XQueryResultType.BOOLEAN);
 
 		if (currentContext != null) {
@@ -870,7 +870,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitCondNotExpr(XQueryParser.CondNotExprContext ctx) {
-		System.out.println("visiting CondNotExpr");
+		//System.out.println("visiting CondNotExpr");
 		XQueryResult result = null;
 		XQueryResult conditionResult = visit(ctx.condition);
 		if (conditionResult != null && conditionResult.getType() == XQueryResultType.BOOLEAN) {
@@ -960,19 +960,19 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		 * levelOrderHash(x.getChildNodes().item(0)).hashCode() ==
 		 * y.getChildNodes().item(0)).hashCode() ;
 		 */
-		System.out.println(levelOrderHash(x.getChildNodes().item(0)).hashCode());
-		System.out.println(levelOrderHash(y.getChildNodes().item(0)).hashCode());
+		//System.out.println(levelOrderHash(x.getChildNodes().item(0)).hashCode());
+		//System.out.println(levelOrderHash(y.getChildNodes().item(0)).hashCode());
 		if (x == null || y == null) {
-			System.out.println("Block 1");
+			//System.out.println("Block 1");
 			return false;
 		}
 		if (x.getParentNode() != null && y.getParentNode() != null) {
-			System.out.println("Block 2");
+			//System.out.println("Block 2");
 			if (!(x.getParentNode().getNodeName().trim().equals("tuple")
 					&& y.getParentNode().getNodeName().trim().equals("tuple"))) {
-				System.out.println("Yes this is the one");
-				System.out.println(x.getParentNode().getNodeName());
-				System.out.println(y.getParentNode().getNodeName());
+				//System.out.println("Yes this is the one");
+				//System.out.println(x.getParentNode().getNodeName());
+				//System.out.println(y.getParentNode().getNodeName());
 
 				if (!x.getNodeName().equals(y.getNodeName())) {
 					return false;
@@ -980,8 +980,8 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 			}
 		} else {
-			System.out.println("Block 3");
-			System.out.println("x = " + x.getNodeName() + " y=" + y.getNodeName());
+			//System.out.println("Block 3");
+			//System.out.println("x = " + x.getNodeName() + " y=" + y.getNodeName());
 			if (!x.getNodeName().equals(y.getNodeName())) {
 				return false;
 			}
@@ -989,21 +989,21 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		}
 
 		if (x.getNodeType() != y.getNodeType()) {
-			System.out.println("Block 4");
+			//System.out.println("Block 4");
 			return false;
 		}
 		if (!x.getTextContent().equals(y.getTextContent())) {
-			System.out.println("Block 5");
+			//System.out.println("Block 5");
 			return false;
 		}
 
 		if (x.getChildNodes().getLength() != y.getChildNodes().getLength()) {
-			System.out.println("Block 6");
+			//System.out.println("Block 6");
 			return false;
 		}
 		for (int i = 0; i < x.getChildNodes().getLength(); i++) {
-			System.out.println("Comparing " + x.getChildNodes().item(i).getNodeName() + " "
-					+ y.getChildNodes().item(i).getNodeName());
+			//System.out.println("Comparing " + x.getChildNodes().item(i).getNodeName() + " "
+			//		+ y.getChildNodes().item(i).getNodeName());
 			if (!equality(x.getChildNodes().item(i), y.getChildNodes().item(i))) {
 				return false;
 			}
@@ -1031,7 +1031,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitJoinDef(XQueryParser.JoinDefContext ctx) {
-		System.out.println("visiting JoinDef");
+		//System.out.println("visiting JoinDef");
 		long startTime = System.currentTimeMillis();
 		XQueryResult left = visit(ctx.query1);
 		XQueryResult right = visit(ctx.query2);
@@ -1050,10 +1050,10 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		NodeListImpl rNodes = right.getNodes();
 
 		System.out.println("Printing Attribute List -------------------------------------");
-		System.out.println("lNodes length == " + lNodes.getLength());
-		for (int i = 0; i < ctx.attrList1.size(); i++) {
-			System.out.println(ctx.attrList1.get(i).getText() + " vs " + ctx.attrList2.get(i).getText());
-		}
+		//System.out.println("lNodes length == " + lNodes.getLength());
+		//for (int i = 0; i < ctx.attrList1.size(); i++) {
+			//System.out.println(ctx.attrList1.get(i).getText() + " vs " + ctx.attrList2.get(i).getText());
+		//}
 		String hashVar = ctx.attrList1.get(0).getText();
 		String hashVarR = ctx.attrList2.get(0).getText();
 		HashMap<Integer, NodeListImpl> lMap = new LinkedHashMap<Integer, NodeListImpl>();
@@ -1074,9 +1074,9 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 
 			for (int k = 0; k < lNodes.get(j).getChildNodes().getLength(); k++) {
 				String keyString = lNodes.get(j).getChildNodes().item(k).getNodeName();
-				System.out.println("KeyString is " + keyString + " HashVar is " + hashVar);
+				//System.out.println("KeyString is " + keyString + " HashVar is " + hashVar);
 				if (!hashVar.equals(keyString)) {
-					System.out.println("Entered ");
+					//System.out.println("Entered ");
 					continue;
 				}
 				int key = levelOrderHash(lNodes.get(j).getChildNodes().item(k)).hashCode();
@@ -1102,20 +1102,20 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		for (int j = 0; j < rNodes.getLength(); j++) {
 			for (int k = 0; k < rNodes.get(j).getChildNodes().getLength(); k++) {
 				String keyString = rNodes.get(j).getChildNodes().item(k).getNodeName();
-				System.out.println("KeyString is " + keyString + " hashVarR is " + hashVarR);
+				//System.out.println("KeyString is " + keyString + " hashVarR is " + hashVarR);
 				if (!hashVarR.equals(keyString)) {
 					continue;
 				}
 				int key = levelOrderHash(rNodes.get(j).getChildNodes().item(k)).hashCode();
 				Node inHand = rNodes.get(j);
-				System.out.println(
-						"Node Name " + rNodes.get(j).getChildNodes().item(k).getNodeName() + " Hash is " + key);
+				//System.out.println(
+				//		"Node Name " + rNodes.get(j).getChildNodes().item(k).getNodeName() + " Hash is " + key);
 				if (lMap.containsKey(key)) {
 					NodeListImpl list = lMap.get(key);
 					for (int h = 0; h < list.getLength(); h++) {
 						Node curNode = list.get(h);
-						System.out.println("CurNode is " + curNode.getChildNodes().item(0));
-						System.out.println("inHand is " + inHand.getChildNodes().item(0));
+						//System.out.println("CurNode is " + curNode.getChildNodes().item(0));
+						//System.out.println("inHand is " + inHand.getChildNodes().item(0));
 						boolean bool = true;
 						for (int ai = 0; ai < ctx.attrList1.size(); ai++) {
 							String lAtt = ctx.attrList1.get(ai).getText();
@@ -1152,7 +1152,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		result.setNodes(resOfJoin);
 		long stopTime = System.currentTimeMillis();
 		long timeElapsed = stopTime - startTime;
-		System.out.println("Time Elapsed in Hash Join ----------------  " + timeElapsed);
+		//System.out.println("Time Elapsed in Hash Join ----------------  " + timeElapsed);
 		// TODO: to be completed
 		return result;
 	}
