@@ -1,17 +1,6 @@
-for 
-    $act in doc("test.xml")//ACT,
-    $title in $act/SCENE/TITLE,
-    $speaker1 in $act//SPEAKER/text(),
-    $speaker2 in $act//SPEAKER/text(),
-    $pg in doc("test.xml")//PGROUP,
-    $persona1 in $pg/PERSONA/text(),
-    $persona2 in $pg/PERSONA/text()
-    
-where $speaker1 eq $persona1 and $speaker2 eq $persona2 and $speaker1 = "MARULLUS" and $persona1 = "MARULLUS"
-    
-return
-    <tuple>{
-        <scene>{$title/text()}</scene>,
-        <persona1>{$persona1}</persona1>,
-        <persona2>{$persona2}</persona2>
-    }</tuple>
+<result>{
+for $a in doc("j_caesar.xml")//PERSONAE, $b in $a/PERSONA
+ where ($b/text() = "JULIUS CAESAR") or ($b/text()= "Another Poet")
+return $b
+       }
+</result>
