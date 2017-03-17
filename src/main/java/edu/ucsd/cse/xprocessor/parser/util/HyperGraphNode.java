@@ -59,7 +59,7 @@ public class HyperGraphNode {
 		String queryString = "";
 
 		String forClauseString = "for ";
-		String returnClauseString = "return <tuple>\n";
+		String returnClauseString = "return <tuple>{\n";
 		for (int i = 0; i < variableNames.size(); i++) {
 			forClauseString += variableNames.get(i) + " in " + xqueries.get(i);
 			returnClauseString += "<" + variableNames.get(i).substring(1) + ">" + "{" + variableNames.get(i) + "}"
@@ -71,7 +71,7 @@ public class HyperGraphNode {
 			forClauseString += "\n";
 			returnClauseString += "\n";
 		}
-		returnClauseString += "</tuple>";
+		returnClauseString += "}</tuple>";
 
 		String whereClause = "";
 		if (!localConditions.isEmpty()) {
