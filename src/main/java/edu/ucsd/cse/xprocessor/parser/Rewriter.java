@@ -8,13 +8,13 @@ import edu.ucsd.cse.xprocessor.parser.util.HyperGraph;
 import edu.ucsd.cse.xprocessor.parser.util.VariableTree;
 import edu.ucsd.cse.xprocessor.parser.util.VariableTreeNode;
 
-public class XQueryOptimizer extends XQueryBaseVisitor<String> {
+public class Rewriter extends XQueryBaseVisitor<String> {
 
 	private Stack<HashSet<String>> contextStack;
 	private HashSet<String> currentContext;
 	private VariableTree variableTree;
 
-	public XQueryOptimizer() {
+	public Rewriter() {
 		super();
 		this.contextStack = new Stack<HashSet<String>>();
 		this.currentContext = new HashSet<String>();
@@ -41,12 +41,14 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 		return ctx.var.getText();
 	}
 
-	@Override
-	public String visitXqContTagExpr(XQueryParser.XqContTagExprContext ctx) {
-		return ctx.getChild(0).getText() + ctx.openTagName.getText() + ctx.getChild(2).getText()
-				+ ctx.getChild(3).getText() + visit(ctx.query) + ctx.getChild(5).getText() + ctx.getChild(6).getText()
-				+ ctx.closeTagName.getText() + ctx.getChild(8).getText();
-	}
+	/*
+	 * @Override public String
+	 * visitXqContTagExpr(XQueryParser.XqContTagExprContext ctx) { return
+	 * ctx.getChild(0).getText() + ctx.openTagName.getText() +
+	 * ctx.getChild(2).getText() + ctx.getChild(3).getText() + visit(ctx.query)
+	 * + ctx.getChild(5).getText() + ctx.getChild(6).getText() +
+	 * ctx.closeTagName.getText() + ctx.getChild(8).getText(); }
+	 */
 
 	@Override
 	public String visitXqConcatExpr(XQueryParser.XqConcatExprContext ctx) {
@@ -93,7 +95,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 		String forStatement = visit(ctx.loop);
 
 		ArrayList<VariableTreeNode> disjointVariableGroups = variableTree.getRootNode().getChildren();
-		if (disjointVariableGroups.size() > 0) {
+		if (disjointVariableGroups.size() > 1) {
 			subQuery += "for $tuple in ";
 
 			HyperGraph hyperGraph = new HyperGraph();
@@ -116,23 +118,33 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 			subQuery += hyperGraph.getJoinString() + "\n";
 
 			String resultStatement = visit(ctx.output);
-			
+
 			for (String variableName : hyperGraph.getVariableNames()) {
 				String regex = "\\" + variableName + "(?![a-zA-Z0-9])";
 				String replacementQuery = "\\$" + variableTree.getPath(variableName) + "/*";
 				resultStatement = resultStatement.replaceAll(regex, replacementQuery);
 			}
-			
+
 			resultStatement += "\n";
-			
+
 			subQuery += resultStatement;
-			
+
 		} else {
-			subQuery += forStatement + visit(ctx.declaration) + visit(ctx.condition) + visit(ctx.output);
+			subQuery += forStatement + "\n";
+
+			if (ctx.declaration != null) {
+				subQuery += visit(ctx.declaration) + "\n";
+			}
+
+			if (ctx.condition != null) {
+				subQuery += visit(ctx.condition) + "\n";
+			}
+
+			subQuery += visit(ctx.output) + "\n";
 		}
-		
+
 		// reset variable tree
-		variableTree = null;
+		variableTree = new VariableTree();
 		/*
 		 * Stack<VariableTreeNode> nodeStack = new Stack<VariableTreeNode>();
 		 * for (int i = independentVariableBlocks.size() - 1; i >= 0; i--) {
@@ -159,6 +171,26 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 	}
 
 	@Override
+	public String visitXqTagClause(XQueryParser.XqTagClauseContext ctx) {
+		return visit(ctx.getChild(0));
+	}
+
+	@Override
+	public String visitTagClauseImpl(XQueryParser.TagClauseImplContext ctx) {
+		String subQuery = "";
+		for (int i = 0; i < ctx.queryList.size(); i++) {
+			subQuery += ctx.getChild(9 * i).getText() + ctx.openTagNameList.get(i).getText()
+					+ ctx.getChild(9 * i + 2).getText() + ctx.getChild(9 * i + 3).getText()
+					+ visit(ctx.queryList.get(i)) + ctx.getChild(9 * i + 5).getText()
+					+ ctx.getChild(9 * i + 6).getText() + ctx.closeTagNameList.get(i).getText()
+					+ ctx.getChild(9 * i + 8).getText() + " ";
+		}
+
+		subQuery += "\n";
+		return subQuery;
+	}
+
+	@Override
 	public String visitForVarIter(XQueryParser.ForVarIterContext ctx) {
 		if (ctx.varList.size() != ctx.queryList.size()) {
 			throw new RuntimeException("For Loop: Number of variables not equal to number of sub-queries.");
@@ -174,7 +206,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 			variableTree.addNode(variableName, xquery);
 			subQuery += variableName + " in " + xquery;
 		}
-
+		
 		return subQuery;
 	}
 
@@ -207,7 +239,8 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitCondEmpty(XQueryParser.CondEmptyContext ctx) {
-		String subQuery = ctx.getChild(0).getText() + ctx.getChild(1).getText() + visit(ctx.query) + ctx.getChild(3).getText();
+		String subQuery = ctx.getChild(0).getText() + ctx.getChild(1).getText() + visit(ctx.query)
+				+ ctx.getChild(3).getText();
 		return subQuery;
 	}
 
@@ -227,7 +260,7 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 			variableTree.addNode(variableName, xquery);
 			subQuery += variableName + " in " + xquery;
 		}
-		
+
 		subQuery += " " + ctx.getChild(ctx.getChildCount() - 2) + " " + ctx.getChild(ctx.getChildCount() - 1);
 
 		return subQuery;
@@ -271,7 +304,31 @@ public class XQueryOptimizer extends XQueryBaseVisitor<String> {
 
 	@Override
 	public String visitJoinDef(XQueryParser.JoinDefContext ctx) {
-		return ctx.getText();
+		String subQuery = "";
+		subQuery += ctx.getChild(0).getText() + ctx.getChild(1).getText() + visit(ctx.query1) + ", " + visit(ctx.query2)
+				+ ", ";
+
+		subQuery += "[";
+		for (int i = 0; i < ctx.attrList1.size(); i++) {
+			if (i > 0) {
+				subQuery += ", ";
+			}
+			subQuery += ctx.attrList1.get(i).getText();
+		}
+		subQuery += "],";
+
+		subQuery += "[";
+		for (int i = 0; i < ctx.attrList2.size(); i++) {
+			if (i > 0) {
+				subQuery += ", ";
+			}
+			subQuery += ctx.attrList2.get(i).getText();
+		}
+		subQuery += "],";
+
+		subQuery += ")";
+
+		return subQuery;
 	}
 
 	@Override

@@ -1,10 +1,10 @@
 grammar XQuery;
 
-/*   
+   
 @header {
 package edu.ucsd.cse.xprocessor.parser;
 }
- */
+
 
 start : xq
 	;
@@ -16,20 +16,19 @@ xq :  var=VAR																										#xqVar
 	| leftQuery=xq ',' rightQuery=xq																				#xqConcatExpr
 	| query=xq '/' relPath=rp																						#xqSlashExpr
 	| query=xq '//' relPath=rp																						#xqDblSlashExpr
-	|  												                                                                #xqContTagExpr
-	| loop=forClause (declaration=letClause)* (condition=whereClause)* output=returnClause								#xqForExpr
+	| loop=forClause (declaration=letClause)* (condition=whereClause)* output=returnClause							#xqForExpr
 	| declaration=letClause query=xq																				#xqLetExpr
 	| join=joinClause																								#xqJoinExpr
-	| tClause=tagClause																										#xqTagClause
-	; 
+	| tClause=tagClause																								#xqTagClause
+	;
 
 tagClause : '<' openTagNameList+=ID '>' '{' queryList+=xq '}' '</' closeTagNameList+=ID '>' ('<' openTagNameList+=ID '>' '{' queryList+=xq '}' '</' closeTagNameList+=ID '>')* #tagClauseImpl	
     ;
 
-forClause : 'for' varList+=VAR 'in' queryList+=xq (',' varList+=VAR 'in' queryList+=xq)*								#forVarIter
+forClause : 'for' varList+=VAR 'in' queryList+=xq (',' varList+=VAR 'in' queryList+=xq)*							#forVarIter
 	;
 	
-letClause : 'let' varList+=VAR ':=' queryList+=xq (',' varList+=VAR ':=' queryList+=xq)*								#letVarDef
+letClause : 'let' varList+=VAR ':=' queryList+=xq (',' varList+=VAR ':=' queryList+=xq)*							#letVarDef
 	;
 	
 whereClause : 'where' condition=cond																				#whereCondExpr
