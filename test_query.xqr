@@ -1,4 +1,10 @@
-for $b in doc("input")/book/*,
-	$a in $b/author
-	where $a eq "John"
-return $b
+for $b in doc("input.xml")/cars/supercars,
+           $tb in $b/carname,
+           $ab in doc("input.xml")/cars/supercars,
+           $atb in $ab/carname,
+           $b2 in doc("input.xml")/cars/supercars,
+           $tb2 in $b2/carname,
+           $ab2 in doc("input.xml")/cars/supercars,
+           $atb2 in $ab2/carname
+           where $b = $ab and $tb = $atb and $b2 = $ab2 and $tb2 = $atb2 and $b2 = $b
+           return <tuple> {<b> {$b} </b><tb> {$tb} </tb> <ab> {$ab} </ab><atb> {$atb} </atb> <b2> {$b2} </b2><tb2> {$tb2} </tb2> <ab2> {$ab2} </ab2><atb2> {$atb2} </atb2> }</tuple>

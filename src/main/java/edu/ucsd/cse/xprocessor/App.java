@@ -1,6 +1,7 @@
 package edu.ucsd.cse.xprocessor;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -41,6 +42,7 @@ public class App {
 
 	private static String queryFileName = "test_query.xqr";
 	private static String outputFileName = "result.xml";
+	private static String rewritedFileName = "rewritedQuery.xqr";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
@@ -69,7 +71,9 @@ public class App {
 			Rewriter rewriter = new Rewriter();
 			query = rewriter.visit(tree);
 		}
-		
+		BufferedWriter wr = new BufferedWriter(new FileWriter (new File (rewritedFileName)));
+		wr.write(query);
+		wr.close();
 		System.out.println(query);
 
 		EvalVisitor visitor = new EvalVisitor();

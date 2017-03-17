@@ -1,0 +1,36 @@
+for $tuple in join(
+join(
+join(
+for $b in doc("input.xml")/cars/supercars,
+$tb in $b/carname
+return <tuple>
+<b>{$b}</b>,
+<tb>{$tb}</tb>
+</tuple>,
+for $b2 in doc("input.xml")/cars/supercars,
+$tb2 in $b2/carname
+return <tuple>
+<b2>{$b2}</b2>,
+<tb2>{$tb2}</tb2>
+</tuple>,
+[b], [b2]
+),
+for $ab2 in doc("input.xml")/cars/supercars,
+$atb2 in $ab2/carname
+return <tuple>
+<ab2>{$ab2}</ab2>,
+<atb2>{$atb2}</atb2>
+</tuple>,
+[b2, tb2], [ab2, atb2]
+),
+for $ab in doc("input.xml")/cars/supercars,
+$atb in $ab/carname
+return <tuple>
+<ab>{$ab}</ab>,
+<atb>{$atb}</atb>
+</tuple>,
+[b, tb], [ab, atb]
+)
+return <tuple>{<b>{$tuple/b/*}</b> <tb>{$tuple/b/tb/*}</tb> <ab>{$tuple/ab/*}</ab> <atb>{$tuple/ab/atb/*}</atb> <b2>{$tuple/b2/*}</b2> <tb2>{$tuple/b2/tb2/*}</tb2> <ab2>{$tuple/ab2/*}</ab2> <atb2>{$tuple/ab2/atb2/*}</atb2> 
+}</tuple> 
+
