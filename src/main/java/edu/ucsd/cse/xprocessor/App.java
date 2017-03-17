@@ -70,10 +70,20 @@ public class App {
 		if (rewriteQueries) {
 			Rewriter rewriter = new Rewriter();
 			query = rewriter.visit(tree);
+
+			// reset ANTLR stream for re-written query
+			input = new ANTLRInputStream(query);
+			lexer = new XQueryLexer(input);
+			tokens = new CommonTokenStream(lexer);
+			parser = new XQueryParser(tokens);
+			parser.removeErrorListeners();
+			tree = parser.start();
 		}
-		BufferedWriter wr = new BufferedWriter(new FileWriter (new File (rewritedFileName)));
+		
+		BufferedWriter wr = new BufferedWriter(new FileWriter(new File(rewritedFileName)));
 		wr.write(query);
 		wr.close();
+		
 		System.out.println(query);
 
 		EvalVisitor visitor = new EvalVisitor();
