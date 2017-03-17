@@ -13,13 +13,13 @@ xq :  var=VAR																										#xqVar
 	| strConst=STRING																						        #xqStrConstDef
 	| ap																											#xqAp
 	| '(' query=xq ')'																								#xqParenExpr
-	| leftQuery=xq ',' rightQuery=xq																				#xqConcatExpr
 	| query=xq '/' relPath=rp																						#xqSlashExpr
 	| query=xq '//' relPath=rp																						#xqDblSlashExpr
 	| loop=forClause (declaration=letClause)* (condition=whereClause)* output=returnClause							#xqForExpr
 	| declaration=letClause query=xq																				#xqLetExpr
 	| join=joinClause																								#xqJoinExpr
 	| tClause=tagClause																								#xqTagClause
+	| leftQuery=xq ',' rightQuery=xq																				#xqConcatExpr
 	;
 
 tagClause : '<' openTagNameList+=ID '>' '{' queryList+=xq '}' '</' closeTagNameList+=ID '>' ('<' openTagNameList+=ID '>' '{' queryList+=xq '}' '</' closeTagNameList+=ID '>')* #tagClauseImpl	
@@ -78,6 +78,7 @@ f : relPath=rp                          																			#filterRp
     | leftf=f 'or' rightf=f       																					#filterOrExpr
     | 'not' filter=f		       																					#filterNotExpr
     ;
+
 
 ID : ALPHA ALNUM*               
     ;
