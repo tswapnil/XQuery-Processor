@@ -1,0 +1,4 @@
+for $b in doc("input")/book/*,
+	$a in $b/author
+	where $a eq "John"
+return $b

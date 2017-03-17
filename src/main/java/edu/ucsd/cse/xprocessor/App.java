@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,8 +27,8 @@ import org.w3c.dom.Text;
 
 import edu.ucsd.cse.xprocessor.parser.EvalVisitor;
 import edu.ucsd.cse.xprocessor.parser.XQueryLexer;
+import edu.ucsd.cse.xprocessor.parser.Rewriter;
 import edu.ucsd.cse.xprocessor.parser.XQueryParser;
-import edu.ucsd.cse.xprocessor.result.NodeListImpl;
 import edu.ucsd.cse.xprocessor.result.XQueryResult;
 import edu.ucsd.cse.xprocessor.result.XQueryResultType;
 
@@ -42,22 +39,21 @@ import edu.ucsd.cse.xprocessor.result.XQueryResultType;
  */
 public class App {
 
-	private static String queryFileName = "testFile.xqr";
+	private static String queryFileName = "test_query.xqr";
 	private static String outputFileName = "result.xml";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
-		//String query = "doc(\"input.xml\")/supercars/carname/";
-		//String query = "doc(\"j_caesar.xml\")//SPEECH/SPEAKER[not(./text()==./*/text())]/../../../../TITLE";
+		// String query = "doc(\"input.xml\")/supercars/carname/";
+		// String query =
+		// "doc(\"j_caesar.xml\")//SPEECH/SPEAKER[not(./text()==./*/text())]/../../../../TITLE";
 		String query = "";
-		
+
 		BufferedReader reader = new BufferedReader(new FileReader(new File(queryFileName)));
-		while(reader.ready()) {
+		while (reader.ready()) {
 			query += reader.readLine() + "\n";
 		}
 		reader.close();
-		
-		//System.out.println(query);
 
 		ANTLRInputStream input = new ANTLRInputStream(query);
 		XQueryLexer lexer = new XQueryLexer(input);
@@ -67,36 +63,45 @@ public class App {
 		parser.removeErrorListeners();
 
 		ParseTree tree = parser.start();
+
+		boolean rewriteQueries = true;
+		if (rewriteQueries) {
+			Rewriter rewriter = new Rewriter();
+			query = rewriter.visit(tree);
+		}
+		
+		System.out.println(query);
+
 		EvalVisitor visitor = new EvalVisitor();
 		XQueryResult result = visitor.visit(tree);
-		if(result==null){
+		if (result == null) {
 			System.out.println("Result is null");
 		}
-//		NodeListImpl nodes = result.getNodes();
-//		HashMap<Node,Integer> map = new HashMap<Node,Integer>();
-//		
-//        if(nodes!=null){
-//       	for(int i=0;i<nodes.getLength();i++){
-//             map.put(nodes.item(i), i);		
-//       	}
-//       	NodeListImpl newNodes = new NodeListImpl();
-//       	Iterator it = map.entrySet().iterator();
-//     	while(it.hasNext()){
-//       		Map.Entry pair = (Map.Entry) it.next();
-//      	    Node temp = (Node) pair.getKey();
-//       	    newNodes.add(temp);
-//       	}
-//        	result.setNodes(newNodes);
-//        }
-        
-        
+
+		// NodeListImpl nodes = result.getNodes();
+		// HashMap<Node,Integer> map = new HashMap<Node,Integer>();
+		//
+		// if(nodes!=null){
+		// for(int i=0;i<nodes.getLength();i++){
+		// map.put(nodes.item(i), i);
+		// }
+		// NodeListImpl newNodes = new NodeListImpl();
+		// Iterator it = map.entrySet().iterator();
+		// while(it.hasNext()){
+		// Map.Entry pair = (Map.Entry) it.next();
+		// Node temp = (Node) pair.getKey();
+		// newNodes.add(temp);
+		// }
+		// result.setNodes(newNodes);
+		// }
+
 		generateResultXMLFile(result);
 
 	}
 
 	public static void generateResultXMLFile(XQueryResult result)
 			throws ParserConfigurationException, TransformerException, IOException {
-		if(result==null){
+		if (result == null) {
 			System.out.println("Returned result is null");
 			return;
 		}
@@ -114,8 +119,8 @@ public class App {
 				rootElement.appendChild(nodes);
 
 				for (Node node : result.getNodes()) {
-					if(node == null){
-						//System.out.println("Node is null ");
+					if (node == null) {
+						// System.out.println("Node is null ");
 						continue;
 					}
 					Node newNode = doc.importNode(node, true);
@@ -142,7 +147,7 @@ public class App {
 			FileWriter writer = new FileWriter(new File(outputFileName));
 			if (result.getNodes() != null) {
 				for (Node node : result.getNodes()) {
-					if(node==null){
+					if (node == null) {
 						continue;
 					}
 					String attrString = ((Attr) node).getValue();
