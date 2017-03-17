@@ -1,31 +1,17 @@
-<<<<<<< HEAD
-for $b1 in doc("book.xml")//book,
-$aj in $b1/author/first/text(),
-$a1 in $b1/author, 
-$af1 in $a1/first/text(),
-$al1 in $a1/last/text(),
-
-$b2 in doc("book.xml")//book,
-$a21 in $b2/author,
-$af21 in $a21/first/text(),
-$al21 in $a21/last/text(),
-$a22 in $b2/author,
-$af22 in $a22/first/text(),
-$al22 in $a22/last/text(),
-
-$b3 in doc("book.xml")//book,
-$a3 in $b3/author,
-$af3 in $a3/first/text(),
-$al3 in $a3/last/text()
-where $aj eq "W." and $af1 eq $af21 and $al1 eq $al21 and $af22 eq $af3 and $al22 eq $al3
-return <triplet> { $b1, $b2, $b3} </triplet>
-=======
-for $a in doc("input.xml")/cars,
-    $b in $a/supercars
-return 
-<a>{
-$a/*,
- $b/* 
- }
- </a>
->>>>>>> branch 'master' of https://github.com/sharma-dhrv/xquery-processor.git
+for 
+    $act in doc("test.xml")//ACT,
+    $title in $act/SCENE/TITLE,
+    $speaker1 in $act//SPEAKER/text(),
+    $speaker2 in $act//SPEAKER/text(),
+    $pg in doc("test.xml")//PGROUP,
+    $persona1 in $pg/PERSONA/text(),
+    $persona2 in $pg/PERSONA/text()
+    
+where $speaker1 eq $persona1 and $speaker2 eq $persona2
+    
+return
+    <tuple>{
+        <scene>{$title/text()}</scene>,
+        <persona1>{$persona1}</persona1>,
+        <persona2>{$persona2}</persona2>
+    }</tuple>

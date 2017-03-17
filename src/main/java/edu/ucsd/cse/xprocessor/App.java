@@ -43,6 +43,7 @@ public class App {
 	private static String queryFileName = "test_query.xqr";
 	private static String outputFileName = "result.xml";
 	private static String rewritedFileName = "rewritedQuery.xqr";
+	private static String timeStats = "timeStats.txt";
 
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException, IOException {
 		// String query = "doc(\"test.xml\")/title//actor[.==..]";
@@ -66,7 +67,7 @@ public class App {
 
 		ParseTree tree = parser.start();
 
-		boolean rewriteQueries = false;
+		boolean rewriteQueries = true;
 		if (rewriteQueries) {
 			Rewriter rewriter = new Rewriter();
 			query = rewriter.visit(tree);
@@ -95,7 +96,9 @@ public class App {
 		long stopTime = System.currentTimeMillis();
 		long timeElapsed = stopTime- startTime;
 		System.out.println("Time for running the query is " + timeElapsed);
-
+		wr = new BufferedWriter(new FileWriter(new File(timeStats)));
+		wr.write("Time Elapsed for running query is "+timeElapsed);
+		wr.close();
 		// NodeListImpl nodes = result.getNodes();
 		// HashMap<Node,Integer> map = new HashMap<Node,Integer>();
 		//
