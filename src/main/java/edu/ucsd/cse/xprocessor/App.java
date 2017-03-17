@@ -87,10 +87,14 @@ public class App {
 		System.out.println(query);
 
 		EvalVisitor visitor = new EvalVisitor();
+		long startTime = System.currentTimeMillis();
 		XQueryResult result = visitor.visit(tree);
 		if (result == null) {
 			System.out.println("Result is null");
 		}
+		long stopTime = System.currentTimeMillis();
+		long timeElapsed = stopTime- startTime;
+		System.out.println("Time for running the query is " + timeElapsed);
 
 		// NodeListImpl nodes = result.getNodes();
 		// HashMap<Node,Integer> map = new HashMap<Node,Integer>();
