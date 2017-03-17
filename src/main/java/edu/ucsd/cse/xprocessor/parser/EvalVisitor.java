@@ -98,6 +98,10 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 			elementNode = doc.createElement(tagName);
 			if (nodes != null) {
 				for (Node node : nodes) {
+					if(node ==null){
+						//System.out.println("Node is null");
+						continue;
+					}
 					if (node.getNodeType() == Node.ELEMENT_NODE || node.getNodeType() == Node.TEXT_NODE) {
 						elementNode.appendChild(doc.importNode(node, true));
 					}
