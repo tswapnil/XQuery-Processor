@@ -107,7 +107,7 @@ public class Rewriter extends XQueryBaseVisitor<String> {
 				String[] whereConditions = whereClauseString.split("where")[1].split("and");
 				ArrayList<String> conditionList = new ArrayList<String>();
 				for (String condition : whereConditions) {
-					conditionList.add(condition);
+					conditionList.add(condition.trim());
 				}
 
 				hyperGraph.initHyperGraphEdges(conditionList);

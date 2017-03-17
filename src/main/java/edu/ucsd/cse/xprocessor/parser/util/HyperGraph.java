@@ -43,10 +43,10 @@ public class HyperGraph {
 				edge.addJoinCondition(firstOperand, secondOperand);
 				firstOperandNode.addHyperGraphEdge(edge);
 				secondOperandNode.addHyperGraphEdge(edge);
-			} else if (firstOperandNode != null && secondOperand == null) {
+			} else if (firstOperandNode != null && secondOperandNode == null) {
 				// add condition to first node as local
 				firstOperandNode.addLocalCondition(whereCondition);
-			} else if (firstOperand == null && secondOperand != null) {
+			} else if (firstOperandNode == null && secondOperandNode != null) {
 				// add condition as local to second node
 				secondOperandNode.addLocalCondition(whereCondition);
 			} else {

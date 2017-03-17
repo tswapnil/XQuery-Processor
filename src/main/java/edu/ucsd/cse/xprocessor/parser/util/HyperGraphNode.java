@@ -75,7 +75,7 @@ public class HyperGraphNode {
 
 		String whereClause = "";
 		if (!localConditions.isEmpty()) {
-			whereClause += "where";
+			whereClause += "where ";
 			whereClause += localConditions.get(0);
 			for (int i = 1; i < localConditions.size(); i++) {
 				whereClause += " and " + localConditions.get(i);
