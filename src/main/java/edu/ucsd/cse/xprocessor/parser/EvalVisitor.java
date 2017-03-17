@@ -278,10 +278,24 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 	 */
 	@Override
 	public XQueryResult visitXqConcatExpr(XQueryParser.XqConcatExprContext ctx) {
-		//System.out.println("visiting XqConcatExpr");
+		System.out.println("visiting XqConcatExpr");
+		System.out.println(ctx.leftQuery.getText());
+		System.out.println(ctx.rightQuery.getText());
+		
 		XQueryResult leftResult = visit(ctx.leftQuery);
 		XQueryResult rightResult = visit(ctx.rightQuery);
 
+		System.out.println("left nodes -------");
+		for(int i=0;i<leftResult.getNodes().getLength();i++){
+			System.out.println(leftResult.getNodes().item(i));
+			
+		}
+		System.out.println("right nodes -------");
+		for(int i=0;i<rightResult.getNodes().getLength();i++){
+			System.out.println(rightResult.getNodes().item(i));
+			
+		}
+		
 		if (leftResult != null && rightResult != null && leftResult.getType() != rightResult.getType()) {
 			System.err.println("Cannot concatenate lists of different types");
 			return null;
@@ -292,6 +306,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		if (leftResult != null) {
 			resultType = leftResult.getType();
 			if (leftResult.getNodes() != null) {
+				System.out.println("Populating left Nodes");
 				nodes.addAll(leftResult.getNodes());
 			}
 		}
@@ -299,6 +314,7 @@ public class EvalVisitor extends XQueryBaseVisitor<XQueryResult> {
 		if (rightResult != null) {
 			resultType = rightResult.getType();
 			if (rightResult.getNodes() != null) {
+				System.out.println("Populating right Nodes");
 				nodes.addAll(rightResult.getNodes());
 			}
 		}

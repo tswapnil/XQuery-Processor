@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 for $b1 in doc("book.xml")//book,
 $aj in $b1/author/first/text(),
 $a1 in $b1/author, 
@@ -18,3 +19,13 @@ $af3 in $a3/first/text(),
 $al3 in $a3/last/text()
 where $aj eq "W." and $af1 eq $af21 and $al1 eq $al21 and $af22 eq $af3 and $al22 eq $al3
 return <triplet> { $b1, $b2, $b3} </triplet>
+=======
+for $a in doc("input.xml")/cars,
+    $b in $a/supercars
+return 
+<a>{
+$a/*,
+ $b/* 
+ }
+ </a>
+>>>>>>> branch 'master' of https://github.com/sharma-dhrv/xquery-processor.git
