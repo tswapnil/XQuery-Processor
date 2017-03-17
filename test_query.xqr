@@ -1,5 +1,8 @@
-for $s in doc("j_caesar.xml")//SPEAKER, 
-    $a in doc("j_caesar.xml")//ACT,
-    $sp in $a//SPEAKER, $stxt in $s/text() 
-    where $sp eq $s and $stxt = "CAESAR"
-return <act> { $a/TITLE/text()} </act>
+for $a in doc("input.xml")/cars,
+    $b in $a/supercars
+return 
+<a>{
+$a/*,
+ $b/* 
+ }
+ </a>
