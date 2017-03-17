@@ -121,7 +121,7 @@ public class Rewriter extends XQueryBaseVisitor<String> {
 
 			for (String variableName : hyperGraph.getVariableNames()) {
 				String regex = "\\" + variableName + "(?![a-zA-Z0-9])";
-				String replacementQuery = "\\$" + variableTree.getPath(variableName) + "/*";
+				String replacementQuery = "\\$tuple/" + variableName.substring(1) + "/*";
 				resultStatement = resultStatement.replaceAll(regex, replacementQuery);
 			}
 

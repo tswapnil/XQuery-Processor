@@ -7,7 +7,7 @@ for
     $persona1 in $pg/PERSONA/text(),
     $persona2 in $pg/PERSONA/text()
     
-where $speaker1 eq $persona1 and $speaker2 eq $persona2
+where $speaker1 eq $persona1 and $speaker2 eq $persona2 and $speaker1 = "MARULLUS" and $persona1 = "MARULLUS"
     
 return
     <tuple>{

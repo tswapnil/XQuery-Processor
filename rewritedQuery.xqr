@@ -3,6 +3,7 @@ for $act in doc("test.xml")//ACT,
 $title in $act/SCENE/TITLE,
 $speaker1 in $act//SPEAKER/text(),
 $speaker2 in $act//SPEAKER/text()
+where $speaker1 = "MARULLUS"
 return <tuple>{
 <act>{$act}</act>,
 <title>{$title}</title>,
@@ -12,6 +13,7 @@ return <tuple>{
 for $pg in doc("test.xml")//PGROUP,
 $persona1 in $pg/PERSONA/text(),
 $persona2 in $pg/PERSONA/text()
+where $persona1 = "MARULLUS"
 return <tuple>{
 <pg>{$pg}</pg>,
 <persona1>{$persona1}</persona1>,
@@ -19,8 +21,8 @@ return <tuple>{
 }</tuple>,
 [speaker1, speaker2], [persona1, persona2]
 )
-return <tuple>{<scene>{$tuple/act/title/*/text()}</scene> 
-, <persona1>{$tuple/pg/persona1/*}</persona1> 
-, <persona2>{$tuple/pg/persona2/*}</persona2> 
+return <tuple>{<scene>{$tuple/title/*/text()}</scene> 
+, <persona1>{$tuple/persona1/*}</persona1> 
+, <persona2>{$tuple/persona2/*}</persona2> 
 }</tuple> 
 
