@@ -67,7 +67,7 @@ public class App {
 
 		ParseTree tree = parser.start();
 
-		boolean rewriteQueries = false;
+		boolean rewriteQueries = true;
 		if (rewriteQueries) {
 			Rewriter rewriter = new Rewriter();
 			query = rewriter.visit(tree);

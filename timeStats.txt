@@ -1,1 +1,1 @@
-Time Elapsed for running query is 154
+Time Elapsed for running query is 367
